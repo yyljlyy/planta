@@ -552,6 +552,13 @@ public class HttpHelper {
 		public void setContent(String content) {
 			this.content = content;
 		}
+		public int getStatusCode() {
+			try {
+				return this.response.getStatusLine().getStatusCode();
+			} catch (Exception e) {
+				return -1;
+			}
+		}
 		
 		@Override
 		public String toString() {
