@@ -341,7 +341,7 @@ public class HttpHelper {
 			HttpEntity entity = response.getEntity();
             String result = null;
             if (entity != null){
-                result = EntityUtils.toString(entity);
+                result = EntityUtils.toString(entity, "utf-8");
             }
             EntityUtils.consume(entity);
             response.close();
