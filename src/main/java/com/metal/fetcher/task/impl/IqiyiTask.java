@@ -36,11 +36,11 @@ public class IqiyiTask implements VideoTask {
 	private List<Video> videoList = new ArrayList<>();
 
 	public static void main(String[] args) {
-		 IqiyiTask task = new IqiyiTask();
-		 VideoTaskBean bean = new VideoTaskBean();
-		 bean.setVid(1L);
-		 bean.setUrl("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1");
-		 task.task(bean);
+		IqiyiTask task = new IqiyiTask();
+		VideoTaskBean bean = new VideoTaskBean();
+		bean.setVid(1L);
+		bean.setUrl("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1");
+		task.task(bean);
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class IqiyiTask implements VideoTask {
 		String html = result.getContent();
 		int start = html.indexOf("{");
 		String json = html.substring(start);
-		log.info(json);
+		log.debug(json);
 		try {
 			JsonNode root = MAPPER.readTree(json);
 			JsonNode data = root.get("data");
@@ -288,6 +288,70 @@ public class IqiyiTask implements VideoTask {
 			this.uid = uid;
 			this.uname = uname;
 			this.replies = replies;
+			this.likes = likes;
+		}
+
+		public String getContentId() {
+			return contentId;
+		}
+
+		public void setContentId(String contentId) {
+			this.contentId = contentId;
+		}
+
+		public String getContent() {
+			return content;
+		}
+
+		public void setContent(String content) {
+			this.content = content;
+		}
+
+		public long getAddTime() {
+			return addTime;
+		}
+
+		public void setAddTime(long addTime) {
+			this.addTime = addTime;
+		}
+
+		public int getHot() {
+			return hot;
+		}
+
+		public void setHot(int hot) {
+			this.hot = hot;
+		}
+
+		public String getUid() {
+			return uid;
+		}
+
+		public void setUid(String uid) {
+			this.uid = uid;
+		}
+
+		public String getUname() {
+			return uname;
+		}
+
+		public void setUname(String uname) {
+			this.uname = uname;
+		}
+
+		public int getReplies() {
+			return replies;
+		}
+
+		public void setReplies(int replies) {
+			this.replies = replies;
+		}
+
+		public int getLikes() {
+			return likes;
+		}
+
+		public void setLikes(int likes) {
 			this.likes = likes;
 		}
 

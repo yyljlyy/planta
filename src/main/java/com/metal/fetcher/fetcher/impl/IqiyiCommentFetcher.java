@@ -13,6 +13,9 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.metal.fetcher.fetcher.VideoCommentFetcher;
+import com.metal.fetcher.mapper.VideoTaskMapper;
+import com.metal.fetcher.model.SubVideoTaskBean;
 import com.metal.fetcher.task.impl.IqiyiTask;
 import com.metal.fetcher.task.impl.IqiyiTask.Comment;
 import com.metal.fetcher.task.impl.IqiyiTask.PageInfo;
@@ -20,7 +23,7 @@ import com.metal.fetcher.task.impl.IqiyiTask.Video;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 
-public class IqiyiCommentFetcher {
+public class IqiyiCommentFetcher implements VideoCommentFetcher {
 	
 	private static Logger log = LoggerFactory.getLogger(IqiyiCommentFetcher.class);
 	
@@ -28,24 +31,26 @@ public class IqiyiCommentFetcher {
 	
 //	private static final String VIDEO_INFO_FORMAT = "http://cache.video.qiyi.com/jp/vi/%s/%s/?status=1";
 	
-	private static final String COMMENT_URL_FORMAT = "http://api.t.iqiyi.com/qx_api/comment/get_video_comments?aid=%s&tvid=%s&sort=add_time&page=%d&page_size=%d";
+	private static final String COMMENT_URL_FORMAT = "http://api.t.iqiyi.com/qx_api/comment/get_video_comments?aid=%s&tvid=%s&sort=add_time&need_total=1&page=%d&page_size=%d";
 	
 	private static final int DEFAULT_PAGE_SIZE = 100;
 	
 	public static void main(String[] args) {
 		IqiyiCommentFetcher fetcher = new IqiyiCommentFetcher();
-		fetcher.fetch("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1");
+//		fetcher.fetch("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1");
 	}
 	
-	private void fetch(String url) {
-		HttpResult result = HttpHelper.getInstance().httpGet(url);
+	@Override
+	public void fetch(SubVideoTaskBean bean) {
+		HttpResult result = HttpHelper.getInstance().httpGet(bean.getPage_url());
 		if(result.getStatusCode() == HttpStatus.SC_OK) {
 			PageInfo pageInfo = IqiyiTask.getPageInfo(result.getContent());
 			String tvId = String.valueOf(pageInfo.getTvId());
 			String aid = IqiyiTask.getAid(result.getContent());
 			List<Comment> comments = getComment(aid, tvId);
 			// TODO
-			log.info(comments.toString());
+			log.debug(comments.toString());
+			VideoTaskMapper.insertComments(bean, comments);
 		}
 		
 //		handleoHomePage(homeUrl);
@@ -90,11 +95,19 @@ public class IqiyiCommentFetcher {
 				continue;
 			}
 			String json = result.getContent();
+			log.debug(json);
 			try {
 				JsonNode root = MAPPER.readTree(json);
 				JsonNode data = root.get("data");
+				int count = data.get("count").asInt();
+				log.debug("count: " + count);
 				JsonNode comments = data.get("comments");
 				int size = comments.size();
+				if(size == 0) {
+					// TODO
+					log.debug("get nothing");
+					break;
+				}
 				for(int i=0; i<size; i++) {
 					JsonNode comment = comments.get(i);
 					String contentId = comment.get("contentId").asText();
@@ -111,9 +124,12 @@ public class IqiyiCommentFetcher {
 					commentList.add(commentBean);
 				}
 				commentCount += size;
-				log.info("video comment count: " + commentCount);
-				if(size < pageSize) {
-					// last page
+				log.debug("video comment count: " + commentCount);
+//				if(size < pageSize) {
+//					// last page
+//					break;
+//				}
+				if(commentCount >= count) {
 					break;
 				}
 			} catch (IOException e) {
