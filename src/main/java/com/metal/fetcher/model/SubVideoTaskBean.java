@@ -2,6 +2,11 @@ package com.metal.fetcher.model;
 
 import java.util.Date;
 
+/**
+ * sub video task bean
+ * @author wxp
+ *
+ */
 public class SubVideoTaskBean {
 	private long sub_vid;
 	private long vid;

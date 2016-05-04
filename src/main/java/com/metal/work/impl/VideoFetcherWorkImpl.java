@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.common.Constants;
+import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.fetcher.VideoCommentFetcher;
 import com.metal.fetcher.fetcher.impl.IqiyiCommentFetcher;
 import com.metal.fetcher.mapper.VideoTaskMapper;
@@ -41,7 +42,7 @@ public class VideoFetcherWorkImpl implements Job {
 				//TODO
 				break;
 			case Constants.PLATFORM_AQIYI:
-				fetcher = new IqiyiCommentFetcher();
+				fetcher = new IqiyiCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_LETV:
 				//TODO
@@ -53,7 +54,8 @@ public class VideoFetcherWorkImpl implements Job {
 				log.error("plantform is not support: " + bean.getPlatform());
 			}
 			if(fetcher != null) {
-				fetcher.fetch(bean);
+				// submit thread
+				MyThreadPool.getInstance().getFixedThreadPool().submit(fetcher);
 			}
 		}
 	}

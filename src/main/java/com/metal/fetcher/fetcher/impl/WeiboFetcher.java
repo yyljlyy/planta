@@ -1,16 +1,21 @@
 package com.metal.fetcher.fetcher.impl;
 
 import com.metal.fetcher.fetcher.SearchFetcher;
-import com.metal.fetcher.handle.FetchHandle;
+import com.metal.fetcher.handle.SearchFetchHandle;
 import com.metal.fetcher.handle.impl.WeiboResultHandle;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 
+/**
+ * weibo's fetcher(search)
+ * @author wxp
+ *
+ */
 public class WeiboFetcher extends SearchFetcher {
 
 	private String WEIBO_SEARCH_FORMAT = "http://s.weibo.com/weibo/%s";
 	
-	public WeiboFetcher(String keyword, FetchHandle handle) {
+	public WeiboFetcher(String keyword, SearchFetchHandle handle) {
 		super(keyword, handle);
 	}
 

@@ -10,6 +10,7 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 
 import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.model.SubVideoTaskBean;
+import com.metal.fetcher.model.VideoCommentsBean;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.impl.IqiyiTask.Comment;
 import com.metal.fetcher.task.impl.IqiyiTask.Video;
@@ -103,22 +104,28 @@ public class VideoTaskMapper {
 		return beans;
 	}
 	
-	public static void insertComments(SubVideoTaskBean subVideo, List<Comment> commentList) {
+	public static void insertComments(SubVideoTaskBean subVideo, VideoCommentsBean comment) {
+		DBUtils.update(COMMENTS_INSERT_SQL, subVideo.getPlatform() + "-" + comment.getComment_id(), 
+				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name(), comment.getPublish_time(),
+				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
+	}
+	
+	public static void subTaskFinish(SubVideoTaskBean subVideo) {
 		Connection conn = null;
 		try {
 			conn = DBHelper.getInstance().getConnection();
 			conn.setAutoCommit(false);
 			QueryRunner qr = new QueryRunner();
-			for(Comment comment : commentList) {
-				try {
-					qr.update(conn, COMMENTS_INSERT_SQL, subVideo.getPlatform() + "-" + comment.getContentId(), 
-							subVideo.getVid(), subVideo.getSub_vid(), comment.getUid(), comment.getUname(), comment.getAddTime() > 0 ? new Date(comment.getAddTime()*1000) : null,
-							comment.getLikes(), 0, comment.getReplies(), 0, comment.getContent().getBytes());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+//			for(Comment comment : commentList) {
+//				try {
+//					qr.update(conn, COMMENTS_INSERT_SQL, subVideo.getPlatform() + "-" + comment.getContentId(), 
+//							subVideo.getVid(), subVideo.getSub_vid(), comment.getUid(), comment.getUname(), comment.getAddTime() > 0 ? new Date(comment.getAddTime()*1000) : null,
+//							comment.getLikes(), 0, comment.getReplies(), 0, comment.getContent().getBytes());
+//				} catch (Exception e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
 			qr.update(conn, UPDATE_SUB_TASK_STATUS, Constants.TASK_STATUS_FINISH, subVideo.getSub_vid());
 
 			List<SubVideoTaskBean> subVideos = qr.query(conn, QUERY_SUB_TASK_BY_VID, new BeanListHandler<SubVideoTaskBean>(SubVideoTaskBean.class), subVideo.getVid());

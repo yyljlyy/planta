@@ -12,11 +12,11 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.metal.fetcher.handle.FetchHandle;
+import com.metal.fetcher.handle.SearchFetchHandle;
 import com.metal.fetcher.model.WeiboJSBean;
 import com.metal.fetcher.utils.WeiboHelper;
 
-public class WeiboResultHandle implements FetchHandle {
+public class WeiboResultHandle implements SearchFetchHandle {
 
 	private static Logger log = LoggerFactory.getLogger(WeiboResultHandle.class);
 	
@@ -28,6 +28,7 @@ public class WeiboResultHandle implements FetchHandle {
 	private static final String SUBFIX = ")</script>";
 	private static final String CONTENT_FLAG = "<script>STK && STK.pageletM && STK.pageletM.view({\"pid\":\"pl_weibo_direct\"";
 	
+	@Override
 	public void handle(String url, String html) {
 		String mainHtml = getMainHtml(html);
 		if(StringUtils.isBlank(mainHtml)) {

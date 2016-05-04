@@ -20,13 +20,18 @@ import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.fetcher.SearchFetcher;
 import com.metal.fetcher.handle.impl.CommonResultHandle;
-import com.metal.fetcher.handle.FetchHandle;
+import com.metal.fetcher.handle.SearchFetchHandle;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 
+/**
+ * weixin.sogou's fetcher(search)
+ * @author wxp
+ *
+ */
 public class SogouWeixinFetcher extends SearchFetcher {
 
-	public SogouWeixinFetcher(String keyword, FetchHandle handle) {
+	public SogouWeixinFetcher(String keyword, SearchFetchHandle handle) {
 		super(keyword, handle);
 		// TODO Auto-generated constructor stub
 	}
