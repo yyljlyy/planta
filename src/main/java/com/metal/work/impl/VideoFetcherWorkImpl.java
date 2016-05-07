@@ -35,6 +35,9 @@ public class VideoFetcherWorkImpl implements Job {
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		List<SubVideoTaskBean> subVideoList =  VideoTaskMapper.getInitSubTasks(SUB_TASK_COUNT);// TODO
+		if(subVideoList == null) {
+			return;
+		}
 		for(SubVideoTaskBean bean : subVideoList) {
 			VideoCommentFetcher fetcher = null;
 			switch(bean.getPlatform()) {

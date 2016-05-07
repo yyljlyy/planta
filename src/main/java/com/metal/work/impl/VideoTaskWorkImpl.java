@@ -35,6 +35,9 @@ public class VideoTaskWorkImpl implements Job {
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		List<VideoTaskBean> videoTaskList = VideoTaskMapper.getInitTasks(TASK_COUNT);
+		if(videoTaskList == null) {
+			return;
+		}
 		for(VideoTaskBean bean : videoTaskList) {
 			VideoTask task = null;
 			switch(bean.getPlatform()) {

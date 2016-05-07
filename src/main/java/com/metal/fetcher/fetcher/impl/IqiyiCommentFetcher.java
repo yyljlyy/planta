@@ -56,7 +56,8 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 			result = HttpHelper.getInstance().httpGet(bean.getPage_url());
 			if (result.getStatusCode() != HttpStatus.SC_OK) {
 				log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + bean.getPage_url());
-				continue;
+			} else {
+				break;
 			}
 		}
 		
@@ -96,14 +97,17 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 			int pageSize = DEFAULT_PAGE_SIZE;
 			String url = String.format(COMMENT_URL_FORMAT, aid, tvid, page++,
 					pageSize);
-			
-			HttpResult result = HttpHelper.getInstance().httpGet(url);
-			if (result.getStatusCode() != HttpStatus.SC_OK) {
-				log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + url);
-				continue;
+			HttpResult result = null;
+			for(int i=0; i<DEFAULT_RETRY_COUNT; i++) {
+				result = HttpHelper.getInstance().httpGet(url);
+				if (result.getStatusCode() != HttpStatus.SC_OK) {
+					log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + url);
+				} else {
+					break;
+				}
 			}
-			String json = result.getContent();
 			try {
+				String json = result.getContent();
 				JsonNode root = MAPPER.readTree(json);
 				JsonNode data = root.get("data");
 				int count = data.get("count").asInt();

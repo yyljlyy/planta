@@ -37,6 +37,8 @@ public class IqiyiTask extends VideoTask {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
+	private static final int DEFAULT_RETRY_COUNT = 3;
+	
 	private String html;
 	
 	private String albumId;
@@ -83,30 +85,21 @@ public class IqiyiTask extends VideoTask {
 	 * @param url
 	 */
 	private void handleoHomePage(String url) {
-		HttpResult result = HttpHelper.getInstance().httpGet(url);
-		if (result.getStatusCode() == HttpStatus.SC_OK) {
-			html = result.getContent();
-			int start = html.indexOf(ALBUM_ID_STR);
-			if (start < 0) {
-				// TODO
+		
+		for(int i=0; i<DEFAULT_RETRY_COUNT; i++) {
+			HttpResult result = HttpHelper.getInstance().httpGet(url);
+			if (result.getStatusCode() == HttpStatus.SC_OK) {
+				html = result.getContent();
+				PageInfo info = getPageInfo(html);
+				if (info != null) {
+					albumId = String.valueOf(info.albumId);
+				}
+				break;
+			} else {
+				log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + url);
 			}
-			int end = html.indexOf(",", start);
-			if (end <= start) {
-				// TODO
-			}
-			// albumId = html.substring(start + ALBUM_ID_STR.length(),
-			// end).trim();
-			PageInfo info = getPageInfo(html);
-			if (info != null) {
-				albumId = String.valueOf(info.albumId);
-			}
-
-			// Document doc = Jsoup.parse(html);
-			// doc.getElementById("qitancommonarea");
-			// aid = doc.attr("data-qitancomment-qitanid");
-		} else {
-			// TODO
 		}
+		
 	}
 
 	/**
@@ -181,9 +174,18 @@ public class IqiyiTask extends VideoTask {
 	 * @param url
 	 */
 	private void handleArticleList(String url) {
-		HttpResult result = HttpHelper.getInstance().httpGet(url);
-		if (result.getStatusCode() != HttpStatus.SC_OK) {
-			// TODO
+		HttpResult result = null;
+		for(int i=0; i<DEFAULT_RETRY_COUNT; i++) {
+			result = HttpHelper.getInstance().httpGet(url);
+			if (result.getStatusCode() != HttpStatus.SC_OK) {
+				log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + url);
+				continue;
+			} else {
+				break;
+			}
+		}
+		if(result == null) {
+			//TODO
 			return;
 		}
 		String html = result.getContent();
