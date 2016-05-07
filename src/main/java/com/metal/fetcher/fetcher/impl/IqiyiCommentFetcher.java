@@ -36,12 +36,10 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	// private static final String VIDEO_INFO_FORMAT =
-	// "http://cache.video.qiyi.com/jp/vi/%s/%s/?status=1";
-
 	private static final String COMMENT_URL_FORMAT = "http://api.t.iqiyi.com/qx_api/comment/get_video_comments?aid=%s&tvid=%s&sort=add_time&need_total=1&page=%d&page_size=%d";
 
 	private static final int DEFAULT_PAGE_SIZE = 100;
+	private static final int DEFAULT_RETRY_COUNT = 3;
 
 	// public static void main(String[] args) {
 	// IqiyiCommentFetcher fetcher = new IqiyiCommentFetcher();
@@ -52,21 +50,24 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 	@Override
 	public void fetch() {
 		// http get
-		HttpResult result = HttpHelper.getInstance()
-				.httpGet(bean.getPage_url());
+		HttpResult result = null;
+		
+		for(int i=0; i<DEFAULT_RETRY_COUNT;i++) {
+			result = HttpHelper.getInstance().httpGet(bean.getPage_url());
+			if (result.getStatusCode() != HttpStatus.SC_OK) {
+				log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + bean.getPage_url());
+				continue;
+			}
+		}
+		
 		if (result.getStatusCode() == HttpStatus.SC_OK) {
 			PageInfo pageInfo = IqiyiTask.getPageInfo(result.getContent());
 			
 			String tvId = String.valueOf(pageInfo.getTvId());
 			String aid = IqiyiTask.getAid(result.getContent());
 			
-//			log.info("aid: " + aid);
-//			log.info("tvid: " + tvId);
 			List<VideoCommentsBean> comments = getComment(aid, tvId);
-			// TODO
-			log.debug(comments.toString());
 			if (comments.size() > 0) {
-//				VideoTaskMapper.insertComments(bean, comments);
 				for(VideoCommentsBean comment : comments) {
 					handle.handle(bean, comment);
 				}
@@ -76,28 +77,9 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 			VideoTaskMapper.subTaskFinish(bean); // sub task finish
 		} else {
 			// TODO failed
+			log.warn("http get failed, url: " + bean.getPage_url());
 		}
-
-		// handleoHomePage(homeUrl);
-		// if(StringUtils.isBlank(albumId)) {
-		// //TODO
-		// }
-		// String arListUrl = String.format(ARTICLE_LIST_FORMAT, albumId,
-		// albumId);
-		// handleArticleList(arListUrl);
-		// log.info(videoList.toString());
-		// getComments();
-		// log.info(videoList.toString());
 	}
-
-	// /**
-	// * get comments for videos
-	// */
-	// private void getComments() {
-	// for(Video video : videoList) {
-	// video.comments = getComment(aid, video.id);
-	// }
-	// }
 
 	/**
 	 * get comments for a video
@@ -117,11 +99,10 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 			
 			HttpResult result = HttpHelper.getInstance().httpGet(url);
 			if (result.getStatusCode() != HttpStatus.SC_OK) {
-				// TODO
+				log.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + url);
 				continue;
 			}
 			String json = result.getContent();
-			log.debug(json);
 			try {
 				JsonNode root = MAPPER.readTree(json);
 				JsonNode data = root.get("data");
@@ -132,6 +113,7 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 				if (size == 0) {
 					// TODO
 					log.debug("get nothing");
+					log.debug("video comment count: " + commentCount);
 					break;
 				}
 				for (int i = 0; i < size; i++) {
@@ -146,56 +128,22 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 					JsonNode counterList = comment.get("counterList");
 					int replies = counterList.get("replies").asInt();
 					int likes = counterList.get("likes").asInt();
-					// Comment commentBean = new Comment(contentId, content,
-					// addTime, hot, uid, uname, replies, likes);
-					// commentList.add(commentBean);
 					commentList.add(new VideoCommentsBean(contentId, bean.getVid(),
 							bean.getSub_vid(), uid, uname, new Date(addTime),
 							likes, 0L, replies, 0, content));
 				}
 				commentCount += size;
 				log.debug("video comment count: " + commentCount);
-				// if(size < pageSize) {
-				// // last page
-				// break;
-				// }
 				if (commentCount >= count) {
+					log.info("get comments finish. comment count: " + commentCount);
 					break;
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("comment page resolve failed. url: " + url, e);
 				break;
 			}
 		}
 		return commentList;
 	}
 	
-	// /**
-	// * @deprecated
-	// * get comment id
-	// */
-	// private void setQtIds() {
-	// for(Video video : videoList) {
-	// String url = String.format(VIDEO_INFO_FORMAT, video.getId(),
-	// video.getVid());
-	// HttpResult result = HttpHelper.getInstance().httpGet(url);
-	// if(result.getStatusCode() != HttpStatus.SC_OK) {
-	// //TODO
-	// continue;
-	// }
-	// String content = result.getContent();
-	// int start = content.indexOf("{");
-	// String json = content.substring(start);
-	// try {
-	// JsonNode root = MAPPER.readTree(json);
-	// long qtId = root.get("qtId").asLong();
-	// video.setQtId(qtId);
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-
 }

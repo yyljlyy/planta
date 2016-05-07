@@ -35,7 +35,7 @@ public class VideoTaskMapper {
 	
 	private static final String UPDATE_SUB_TASK_STATUS = "update sub_video_task set status=? where sub_vid=?";
 	
-	private static final String COMMENTS_INSERT_SQL = "insert into video_comments (comment_id,vid,sub_vid,user_id,user_name,publish_time,up_count,down_count,re_count,type,content) values (?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String COMMENTS_INSERT_SQL = "insert ignore into video_comments (comment_id,vid,sub_vid,user_id,user_name,publish_time,up_count,down_count,re_count,type,content) values (?,?,?,?,?,?,?,?,?,?,?)";
 	
 	public static void insertVideoTask(String url, int platform, String title) {
 		DBUtils.update(VIDEO_TASK_INSERT_SQL, url, platform, title, Constants.TASK_STATUS_INIT);
