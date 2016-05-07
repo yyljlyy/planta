@@ -8,6 +8,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.metal.fetcher.common.Config;
 import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.fetcher.VideoCommentFetcher;
@@ -19,6 +20,8 @@ public class VideoFetcherWorkImpl implements Job {
 	
 	private static Logger log = LoggerFactory.getLogger(VideoFetcherWorkImpl.class);
 
+	private static int SUB_TASK_COUNT = Config.getIntProperty("video_sub_task_count");
+	
 	public static void main(String[] args) {
 		try {
 			new VideoFetcherWorkImpl().execute(null);
@@ -31,7 +34,7 @@ public class VideoFetcherWorkImpl implements Job {
 	@Override
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
-		List<SubVideoTaskBean> subVideoList =  VideoTaskMapper.getInitSubTasks(5);// TODO
+		List<SubVideoTaskBean> subVideoList =  VideoTaskMapper.getInitSubTasks(SUB_TASK_COUNT);// TODO
 		for(SubVideoTaskBean bean : subVideoList) {
 			VideoCommentFetcher fetcher = null;
 			switch(bean.getPlatform()) {
@@ -55,7 +58,7 @@ public class VideoFetcherWorkImpl implements Job {
 			}
 			if(fetcher != null) {
 				// submit thread
-				MyThreadPool.getInstance().getFixedThreadPool().submit(fetcher);
+				MyThreadPool.getInstance().submit(fetcher);
 			}
 		}
 	}

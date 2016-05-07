@@ -1,6 +1,19 @@
 package com.metal.fetcher.task;
 
-public interface VideoTask {
+import com.metal.fetcher.model.VideoTaskBean;
+
+public abstract class VideoTask implements Runnable {
 	
-	public void task();
+	protected VideoTaskBean videoTaskBean;
+	
+	public VideoTask(VideoTaskBean videoTaskBean) {
+		this.videoTaskBean = videoTaskBean;
+	}
+	
+	@Override
+	public void run() {
+		task();
+	}
+
+	abstract public void task();
 }

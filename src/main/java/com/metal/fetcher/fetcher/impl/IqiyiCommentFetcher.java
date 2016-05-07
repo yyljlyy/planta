@@ -60,8 +60,8 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 			String tvId = String.valueOf(pageInfo.getTvId());
 			String aid = IqiyiTask.getAid(result.getContent());
 			
-			log.info("aid: " + aid);
-			log.info("tvid: " + tvId);
+//			log.info("aid: " + aid);
+//			log.info("tvid: " + tvId);
 			List<VideoCommentsBean> comments = getComment(aid, tvId);
 			// TODO
 			log.debug(comments.toString());

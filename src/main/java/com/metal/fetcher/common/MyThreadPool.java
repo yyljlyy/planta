@@ -26,8 +26,7 @@ public class MyThreadPool {
 		return instance;
 	}
 
-	public ExecutorService getFixedThreadPool() {
-		return fixedThreadPool;
+	public void submit(Runnable task) {
+		this.fixedThreadPool.submit(task);
 	}
-
 }

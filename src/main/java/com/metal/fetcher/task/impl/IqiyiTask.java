@@ -22,7 +22,7 @@ import com.metal.fetcher.task.VideoTask;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 
-public class IqiyiTask implements VideoTask {
+public class IqiyiTask extends VideoTask {
 
 	private static Logger log = LoggerFactory.getLogger(IqiyiTask.class);
 
@@ -37,8 +37,6 @@ public class IqiyiTask implements VideoTask {
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
-	private VideoTaskBean videoTaskBean;
-	
 	private String html;
 	
 	private String albumId;
@@ -55,7 +53,7 @@ public class IqiyiTask implements VideoTask {
 //	}
 
 	public IqiyiTask(VideoTaskBean videoTaskBean) {
-		this.videoTaskBean = videoTaskBean;
+		super(videoTaskBean);
 	}
 	
 	@Override
