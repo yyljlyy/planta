@@ -1,16 +1,12 @@
 package com.metal.fetcher.fetcher.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +15,7 @@ import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.SubVideoTaskBean;
 import com.metal.fetcher.model.VideoCommentsBean;
 import com.metal.fetcher.task.impl.IqiyiTask;
-import com.metal.fetcher.task.impl.IqiyiTask.Comment;
 import com.metal.fetcher.task.impl.IqiyiTask.PageInfo;
-import com.metal.fetcher.task.impl.IqiyiTask.Video;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 
@@ -62,8 +56,12 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 				.httpGet(bean.getPage_url());
 		if (result.getStatusCode() == HttpStatus.SC_OK) {
 			PageInfo pageInfo = IqiyiTask.getPageInfo(result.getContent());
+			
 			String tvId = String.valueOf(pageInfo.getTvId());
 			String aid = IqiyiTask.getAid(result.getContent());
+			
+			log.info("aid: " + aid);
+			log.info("tvid: " + tvId);
 			List<VideoCommentsBean> comments = getComment(aid, tvId);
 			// TODO
 			log.debug(comments.toString());
@@ -72,10 +70,10 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 				for(VideoCommentsBean comment : comments) {
 					handle.handle(bean, comment);
 				}
-				VideoTaskMapper.subTaskFinish(bean);
 			} else {
 				// TODO comments is null
 			}
+			VideoTaskMapper.subTaskFinish(bean); // sub task finish
 		} else {
 			// TODO failed
 		}
@@ -116,6 +114,7 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 			int pageSize = DEFAULT_PAGE_SIZE;
 			String url = String.format(COMMENT_URL_FORMAT, aid, tvid, page++,
 					pageSize);
+			
 			HttpResult result = HttpHelper.getInstance().httpGet(url);
 			if (result.getStatusCode() != HttpStatus.SC_OK) {
 				// TODO
@@ -163,7 +162,7 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 				if (commentCount >= count) {
 					break;
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				break;
@@ -171,7 +170,7 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 		}
 		return commentList;
 	}
-
+	
 	// /**
 	// * @deprecated
 	// * get comment id

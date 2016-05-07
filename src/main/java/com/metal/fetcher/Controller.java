@@ -11,7 +11,7 @@ public class Controller {
 	}
 	
 	private static void start() {
-		QuartzManager.addJob("video-task-work", VideoTaskWorkImpl.class, "0 35 * * * ?");
-		QuartzManager.addJob("video-fetcher-work", VideoFetcherWorkImpl.class, "0 36 * * * ?");
+		QuartzManager.addJob("video-task-work", VideoTaskWorkImpl.class, "0 15 * * * ?");
+		QuartzManager.addJob("video-fetcher-work", VideoFetcherWorkImpl.class, "0 19 * * * ?");
 	}
 }

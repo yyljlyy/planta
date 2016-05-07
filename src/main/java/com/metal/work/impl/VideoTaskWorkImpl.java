@@ -19,7 +19,12 @@ public class VideoTaskWorkImpl implements Job {
 	private static Logger log = LoggerFactory.getLogger(VideoTaskWorkImpl.class);
 	
 	public static void main(String[] args) {
-//		new VideoTaskWorkImpl().work();
+		try {
+			new VideoTaskWorkImpl().execute(null);
+		} catch (JobExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -36,7 +41,7 @@ public class VideoTaskWorkImpl implements Job {
 				//TODO
 				break;
 			case Constants.PLATFORM_AQIYI:
-				task = new IqiyiTask();
+				task = new IqiyiTask(bean);
 				break;
 			case Constants.PLATFORM_LETV:
 				//TODO
@@ -48,7 +53,7 @@ public class VideoTaskWorkImpl implements Job {
 				log.error("plantform is not support: " + bean.getPlatform());
 			}
 			if(task != null) {
-				task.task(bean);
+				task.task();
 			}
 		}
 	}

@@ -54,7 +54,7 @@ public class SogouWeixinFetcher extends SearchFetcher {
 		
 		String html = articleListResult.getContent();
 		
-//		System.out.println(html);
+		System.out.println(html);
 		
 		Document doc = Jsoup.parse(html);
 		if(!isExistResult(doc)) {
@@ -68,7 +68,7 @@ public class SogouWeixinFetcher extends SearchFetcher {
 		}
 		Thread th1 = new Thread(new SubFetcherTask(firstUrl, articleListResult));
 		th1.start();
-		for(int i=2; i<pageCount; i++) {
+		for(int i=2; i<4; i++) { // TODO pageCount
 			String url = String.format(URL_FORMAT, keyword, i);
 			Header theHeader = new BasicHeader(HttpHeaders.USER_AGENT, HttpHelper.getRandomUserAgent());
 			Thread th = new Thread(new SubFetcherTask(url));
@@ -147,6 +147,7 @@ public class SogouWeixinFetcher extends SearchFetcher {
 	 */
 	private void fetcherArticles(List<String> links, HttpContext context) {
 		for(String link : links) {
+			log.info(link);
 			randomSleep();
 			HttpResult articleResult = HttpHelper.getInstance().httpGet(link, null, null, null, context);
 //			System.out.println(articleResult.getResponse().getStatusLine().getStatusCode());

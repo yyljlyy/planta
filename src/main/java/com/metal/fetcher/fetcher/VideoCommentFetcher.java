@@ -20,7 +20,7 @@ public abstract class VideoCommentFetcher implements Runnable {
 	
 	@Override
 	public void run() {
-		
+		fetch();
 	}
 
 	/**

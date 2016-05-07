@@ -2,6 +2,7 @@ package com.metal.fetcher.task.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,10 +11,12 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.mapper.VideoTaskMapper;
+import com.metal.fetcher.model.VideoCommentsBean;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
 import com.metal.fetcher.utils.HttpHelper;
@@ -23,32 +26,57 @@ public class IqiyiTask implements VideoTask {
 
 	private static Logger log = LoggerFactory.getLogger(IqiyiTask.class);
 
+	private static final int DEFAULT_PAGE_SIZE = 50;
+	
 	private static final String ARTICLE_LIST_FORMAT = "http://cache.video.qiyi.com/jp/avlist/%s/1/50/?albumId=%s&pageNo=1&pageNum=50";
 
+	private static final String REVIEW_URL_FORMAT = "http://api.t.iqiyi.com/qx_api/comment/review/get_review_list?aid=%s&sort=add_time&need_total=1&page=%d&page_size=%d";
+	
 	private static final String ALBUM_ID_STR = "albumId:";
 	private static final String PAGE_INFO_PREFIX = "Q.PageInfo.playPageInfo =";
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
+	private VideoTaskBean videoTaskBean;
+	
+	private String html;
+	
 	private String albumId;
 	// private String aid;
 
 	private List<Video> videoList = new ArrayList<>();
 
-	public static void main(String[] args) {
-		IqiyiTask task = new IqiyiTask();
-		VideoTaskBean bean = new VideoTaskBean();
-		bean.setVid(1L);
-		bean.setUrl("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1");
-		task.task(bean);
-	}
+//	public static void main(String[] args) {
+//		IqiyiTask task = new IqiyiTask();
+//		VideoTaskBean bean = new VideoTaskBean();
+//		bean.setVid(1L);
+//		bean.setUrl("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1");
+//		task.task(bean);
+//	}
 
+	public IqiyiTask(VideoTaskBean videoTaskBean) {
+		this.videoTaskBean = videoTaskBean;
+	}
+	
 	@Override
-	public void task(VideoTaskBean videoTaskBean) {
+	public void task() {
 		handleoHomePage(videoTaskBean.getUrl());
 		String arListUrl = String.format(ARTICLE_LIST_FORMAT, albumId, albumId);
 		handleArticleList(arListUrl);
 		VideoTaskMapper.createSubVidelTasks(videoTaskBean, videoList);
+		
+		String aid = IqiyiTask.getAid(html);
+		
+		List<VideoCommentsBean> reviews = getReviews(aid);
+		log.debug(reviews.toString());
+		if (reviews.size() > 0) {
+//			VideoTaskMapper.insertComments(bean, comments);
+			for(VideoCommentsBean review : reviews) {
+				VideoTaskMapper.insertComments(videoTaskBean, review);
+			}
+		} else {
+			// TODO reviews is null
+		}
 	}
 
 	/**
@@ -59,7 +87,7 @@ public class IqiyiTask implements VideoTask {
 	private void handleoHomePage(String url) {
 		HttpResult result = HttpHelper.getInstance().httpGet(url);
 		if (result.getStatusCode() == HttpStatus.SC_OK) {
-			String html = result.getContent();
+			html = result.getContent();
 			int start = html.indexOf(ALBUM_ID_STR);
 			if (start < 0) {
 				// TODO
@@ -140,8 +168,8 @@ public class IqiyiTask implements VideoTask {
 	public static String getAid(String html) {
 		try {
 			Document doc = Jsoup.parse(html);
-			doc.getElementById("qitancommonarea");
-			return doc.attr("data-qitancomment-qitanid");
+			Element ele = doc.getElementById("qitancommonarea");
+			return ele.attr("data-qitancomment-qitanid");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -185,6 +213,71 @@ public class IqiyiTask implements VideoTask {
 		}
 	}
 
+	private List<VideoCommentsBean> getReviews(String aid) {
+		List<VideoCommentsBean> reviewList = new ArrayList<VideoCommentsBean>();
+		int reviewCount = 0;
+		int page = 1;
+		while (true) {
+			int pageSize = DEFAULT_PAGE_SIZE;
+			String url = String.format(REVIEW_URL_FORMAT, aid, page++,
+					pageSize);
+			log.info("review url: " + url);
+			HttpResult result = HttpHelper.getInstance().httpGet(url);
+			if (result.getStatusCode() != HttpStatus.SC_OK) {
+				// TODO
+				continue;
+			}
+			String json = result.getContent();
+			log.debug(json);
+			try {
+				JsonNode root = MAPPER.readTree(json);
+				JsonNode data = root.get("data");
+				int count = data.get("count").asInt();
+				log.debug("count: " + count);
+				JsonNode reviews = data.get("reviewList");
+				int size = reviews.size();
+				if (size == 0) {
+					// TODO
+					log.debug("get nothing");
+					break;
+				}
+				for (int i = 0; i < size; i++) {
+					JsonNode review = reviews.get(i);
+					String contentId = review.get("contentId").asText();
+					String content = review.get("content").asText();
+					long addTime = review.get("addTime").asLong();
+					int hot = review.get("hot").asInt();
+					JsonNode userInfo = review.get("userInfo");
+					String uid = userInfo.get("uid").asText();
+					String uname = userInfo.get("uname").asText();
+					JsonNode counterList = review.get("counterList");
+					int replies = counterList.get("replies").asInt();
+					int likes = counterList.get("likes").asInt();
+					// Comment commentBean = new Comment(contentId, content,
+					// addTime, hot, uid, uname, replies, likes);
+					// commentList.add(commentBean);
+					reviewList.add(new VideoCommentsBean(contentId, videoTaskBean.getVid(),
+							0, uid, uname, new Date(addTime),
+							likes, 0L, replies, 1, content));//长评
+				}
+				reviewCount += size;
+				log.debug("video reviews count: " + reviewCount);
+				// if(size < pageSize) {
+				// // last page
+				// break;
+				// }
+				if (reviewCount >= count) {
+					break;
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				break;
+			}
+		}
+		return reviewList;
+	}
+	
 	public static class Video {
 		private String pds;
 		private long id;
