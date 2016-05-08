@@ -60,6 +60,8 @@ public class VideoTaskMapper {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			DBHelper.release(conn);
 		}
 		return beans;
 	}
@@ -77,6 +79,8 @@ public class VideoTaskMapper {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			DBHelper.release(conn);
 		}
 	}
 	
@@ -99,6 +103,8 @@ public class VideoTaskMapper {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			DBHelper.release(conn);
 		}
 		return beans;
 	}
@@ -158,6 +164,8 @@ public class VideoTaskMapper {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			DBHelper.release(conn);
 		}
 	}
 	
