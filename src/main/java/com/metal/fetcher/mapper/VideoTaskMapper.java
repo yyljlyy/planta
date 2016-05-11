@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.model.SubVideoTaskBean;
@@ -19,6 +21,8 @@ import com.metal.fetcher.utils.DBUtils;
 
 public class VideoTaskMapper {
 	
+	private static Logger log = LoggerFactory.getLogger(VideoTaskMapper.class);
+	
 	private static final int DEFAULT_QUERY_LIMIT = 10;
 	
 	private static final String VIDEO_TASK_INSERT_SQL = "insert into video_task (url,platform,title,status) values (?,?,?,?)";
@@ -27,7 +31,7 @@ public class VideoTaskMapper {
 	
 	private static final String UPDATE_TASK_STATUS = "update video_task set status=? where vid=?";
 	
-	private static final String SUB_VIDEO_TASK_INSERT_SQL = "insert into sub_video_task (vid,page_url,platform,title,status) values (?,?,?,?,?) on DUPLICATE key UPDATE status=0";
+	private static final String SUB_VIDEO_TASK_INSERT_SQL = "insert into sub_video_task (vid,page_url,platform,title,pd,status) values (?,?,?,?,?,?) on DUPLICATE key UPDATE pd=?,status=?";
 
 	private static final String QUERY_SUB_TASK_BY_STATUS = "select sub_vid,vid,page_url,platform,title,status,add_time,last_update_time from sub_video_task where status=? limit ?";
 	
@@ -59,7 +63,7 @@ public class VideoTaskMapper {
 			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("get init tasks failed", e);
 		} finally {
 			DBHelper.release(conn);
 		}
@@ -73,12 +77,13 @@ public class VideoTaskMapper {
 			conn.setAutoCommit(false);
 			QueryRunner qr = new QueryRunner();
 			for(Video video : videoList) {
-				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getvUrl(), videoTaskBean.getPlatform(), video.getTitle(), Constants.TASK_STATUS_INIT);
+				log.info("insert sub video: " + video);
+				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getvUrl(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, video.getPd(), Constants.TASK_STATUS_INIT);
 			}
 			conn.commit();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("insert sub task failed", e);
 		} finally {
 			DBHelper.release(conn);
 		}

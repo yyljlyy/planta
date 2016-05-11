@@ -62,7 +62,9 @@ public class IqiyiTask extends VideoTask {
 	public void task() {
 		handleoHomePage(videoTaskBean.getUrl());
 		String arListUrl = String.format(ARTICLE_LIST_FORMAT, albumId, albumId);
+		log.debug(arListUrl);
 		handleArticleList(arListUrl);
+		log.info("video count: " + videoList.size());
 		VideoTaskMapper.createSubVidelTasks(videoTaskBean, videoList);
 		
 		String aid = IqiyiTask.getAid(html);
@@ -280,6 +282,7 @@ public class IqiyiTask extends VideoTask {
 	
 	public static class Video {
 		private String pds;
+		private int pd;
 		private long id;
 		private String vid;
 		private String vUrl;
@@ -290,6 +293,12 @@ public class IqiyiTask extends VideoTask {
 		public Video(String pds, long id, String vid, String vUrl,
 				String title, long publishTime) {
 			this.pds = pds;
+			try {
+				this.pd = Integer.parseInt(pds);
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			this.id = id;
 			this.vid = vid;
 			this.vUrl = vUrl;
@@ -303,6 +312,14 @@ public class IqiyiTask extends VideoTask {
 
 		public void setPds(String pds) {
 			this.pds = pds;
+		}
+		
+		public int getPd() {
+			return pd;
+		}
+
+		public void setPd(int pd) {
+			this.pd = pd;
 		}
 
 		public long getId() {
