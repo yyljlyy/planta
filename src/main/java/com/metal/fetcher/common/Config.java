@@ -63,7 +63,7 @@ public class Config {
 			try {
 				input.close();
 			} catch (final IOException e) {
-				e.printStackTrace();
+				log.error("input close error:", e);
 			}
 		}
 	}

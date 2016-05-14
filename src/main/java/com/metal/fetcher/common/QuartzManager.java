@@ -14,6 +14,8 @@ import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 定时任务管理类
@@ -21,6 +23,7 @@ import org.quartz.impl.StdSchedulerFactory;
  * @author
  */
 public class QuartzManager {
+	private static Logger log = LoggerFactory.getLogger(QuartzManager.class);
 	private static SchedulerFactory schedulerFactory = new StdSchedulerFactory();
 	private static String JOB_GROUP_NAME = "JOBGROUP_NAME";
 	private static String TRIGGER_GROUP_NAME = "TRIGGERGROUP_NAME";
@@ -56,7 +59,7 @@ public class QuartzManager {
 				sched.start();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("add job:", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -98,7 +101,7 @@ public class QuartzManager {
 				sched.start();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("add job" + jobName + " error:", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -111,7 +114,7 @@ public class QuartzManager {
 			Scheduler sched = schedulerFactory.getScheduler();
 			sched.start();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("start job error:", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -126,7 +129,7 @@ public class QuartzManager {
 				sched.shutdown();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("shutdown job error:", e);
 			throw new RuntimeException(e);
 		}
 	}

@@ -26,8 +26,7 @@ public class VideoFetcherWorkImpl implements Job {
 		try {
 			new VideoFetcherWorkImpl().execute(null);
 		} catch (JobExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("video fetch execute error:", e);
 		}
 	}
 
