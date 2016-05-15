@@ -167,8 +167,7 @@ public class VideoTaskMapper {
 			}
 			conn.commit();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("subTaskFinish:", e);
 		} finally {
 			DBHelper.release(conn);
 		}

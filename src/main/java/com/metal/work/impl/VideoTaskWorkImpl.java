@@ -27,8 +27,7 @@ public class VideoTaskWorkImpl implements Job {
 		try {
 			new VideoTaskWorkImpl().execute(null);
 		} catch (JobExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("video task work error:", e);
 		}
 	}
 	

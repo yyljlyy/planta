@@ -74,6 +74,7 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 				}
 			} else {
 				// TODO comments is null
+				log.info("comment is null:" + aid + ": tvId:" + tvId);
 			}
 			VideoTaskMapper.subTaskFinish(bean); // sub task finish
 		} else {

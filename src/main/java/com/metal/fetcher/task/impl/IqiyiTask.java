@@ -165,8 +165,7 @@ public class IqiyiTask extends VideoTask {
 			Element ele = doc.getElementById("qitancommonarea");
 			return ele.attr("data-qitancomment-qitanid");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("getAid:", e);
 		}
 		return null;
 	}
@@ -220,8 +219,7 @@ public class IqiyiTask extends VideoTask {
 				videoList.add(subVideo);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("handleArticleList:", e);;
 		}
 	}
 
@@ -282,8 +280,7 @@ public class IqiyiTask extends VideoTask {
 					break;
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("getReviews:" + aid, e);
 				break;
 			}
 		}
