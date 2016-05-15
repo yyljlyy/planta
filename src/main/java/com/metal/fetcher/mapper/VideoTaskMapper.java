@@ -70,15 +70,15 @@ public class VideoTaskMapper {
 		return beans;
 	}
 	
-	public static void createSubVidelTasks(VideoTaskBean videoTaskBean, List<Video> videoList) {
+	public static void createSubVidelTasks(VideoTaskBean videoTaskBean, List<SubVideoTaskBean> videoList) {
 		Connection conn = null;
 		try {
 			conn = DBHelper.getInstance().getConnection();
 			conn.setAutoCommit(false);
 			QueryRunner qr = new QueryRunner();
-			for(Video video : videoList) {
+			for(SubVideoTaskBean video : videoList) {
 				log.info("insert sub video: " + video);
-				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getvUrl(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, video.getPd(), Constants.TASK_STATUS_INIT);
+				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getPage_url(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, video.getPd(), Constants.TASK_STATUS_INIT);
 			}
 			conn.commit();
 		} catch (SQLException e) {

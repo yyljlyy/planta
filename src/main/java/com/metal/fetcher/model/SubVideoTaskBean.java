@@ -13,6 +13,7 @@ public class SubVideoTaskBean {
 	private String page_url;
 	private int platform;
 	private String title;
+	private int pd;
 	private int status;
 	private Date add_time;
 	private Date last_update_time;
@@ -45,6 +46,12 @@ public class SubVideoTaskBean {
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	public int getPd() {
+		return pd;
+	}
+	public void setPd(int pd) {
+		this.pd = pd;
 	}
 	public int getStatus() {
 		return status;

@@ -15,6 +15,7 @@ import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
 import com.metal.fetcher.task.impl.IqiyiTask;
+import com.metal.fetcher.task.impl.TengxunTask;
 
 public class VideoTaskWorkImpl implements Job {
 	
@@ -42,7 +43,7 @@ public class VideoTaskWorkImpl implements Job {
 			VideoTask task = null;
 			switch(bean.getPlatform()) {
 			case Constants.PLATFORM_TENGXUN:
-				//TODO
+				task = new TengxunTask(bean);
 				break;
 			case Constants.PLATFORM_YOUTU:
 				//TODO

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.mapper.VideoTaskMapper;
+import com.metal.fetcher.model.SubVideoTaskBean;
 import com.metal.fetcher.model.VideoCommentsBean;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
@@ -32,7 +33,7 @@ public class IqiyiTask extends VideoTask {
 
 	private static final String REVIEW_URL_FORMAT = "http://api.t.iqiyi.com/qx_api/comment/review/get_review_list?aid=%s&sort=add_time&need_total=1&page=%d&page_size=%d";
 	
-	private static final String ALBUM_ID_STR = "albumId:";
+//	private static final String ALBUM_ID_STR = "albumId:";
 	private static final String PAGE_INFO_PREFIX = "Q.PageInfo.playPageInfo =";
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -44,7 +45,7 @@ public class IqiyiTask extends VideoTask {
 	private String albumId;
 	// private String aid;
 
-	private List<Video> videoList = new ArrayList<>();
+	private List<SubVideoTaskBean> videoList = new ArrayList<>();
 
 //	public static void main(String[] args) {
 //		IqiyiTask task = new IqiyiTask();
@@ -206,8 +207,17 @@ public class IqiyiTask extends VideoTask {
 				String vUrl = vNode.get("vurl").asText();
 				String title = vNode.get("shortTitle").asText();
 				long publishTime = vNode.get("publishTime").asLong();
-				Video video = new Video(pds, id, vid, vUrl, title, publishTime);
-				videoList.add(video);
+//				Video video = new Video(pds, id, vid, vUrl, title, publishTime);
+//				videoList.add(video);
+				SubVideoTaskBean subVideo = new SubVideoTaskBean();
+				subVideo.setPage_url(vUrl);
+				subVideo.setTitle(title);
+				try {
+					subVideo.setPd(Integer.parseInt(pds));
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				}
+				videoList.add(subVideo);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

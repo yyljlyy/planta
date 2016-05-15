@@ -17,6 +17,7 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.CookieStore;
@@ -565,5 +566,19 @@ public class HttpHelper {
 			return "HttpResult [response=" + response + ", context=" + context
 					+ ", content=" + content + "]";
 		}
+	}
+	
+	public HttpResult httpGetWithRetry(String url, int retry) {
+		HttpResult result = null;
+		for(int i=0; i<retry; i++) {
+			result = httpGet(url);
+			if(result.getStatusCode() != HttpStatus.SC_OK) {
+				continue;
+			}
+			if(StringUtils.isBlank(result.getContent())) {
+				continue;
+			}
+		}
+		return result;
 	}
 }

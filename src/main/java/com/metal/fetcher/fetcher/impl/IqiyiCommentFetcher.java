@@ -125,6 +125,10 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 					String contentId = comment.get("contentId").asText();
 					String content = comment.get("content").asText();
 					long addTime = comment.get("addTime").asLong();
+					if(addTime < 10000000000L) {
+						addTime *= 1000;
+					}
+					log.info("addtime: " + addTime + "; " + new Date(addTime));
 					int hot = comment.get("hot").asInt();
 					JsonNode userInfo = comment.get("userInfo");
 					String uid = userInfo.get("uid").asText();
