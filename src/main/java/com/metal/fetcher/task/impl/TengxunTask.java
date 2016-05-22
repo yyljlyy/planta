@@ -40,31 +40,45 @@ public class TengxunTask extends VideoTask {
 
 	@Override
 	public void task() {
+		log.info("start work : " + this.videoTaskBean.getUrl());
 		String homePage = this.videoTaskBean.getUrl();
 		HttpResult result = HttpHelper.getInstance().httpGetWithRetry(homePage, MAX_RETRY);
+
+		if(result == null) {
+			// TODO
+			log.error("http result is null.");
+			return;
+		}
+		
 		if(result.getStatusCode() != HttpStatus.SC_OK || StringUtils.isBlank(result.getContent())) {
 			// TODO failed
+			log.error("get video home page failed. status code: " + result.getStatusCode() + "; " + this.videoTaskBean.getUrl());
 		}
+		log.debug(result.getContent());
 		List<SubVideoTaskBean> subVideos = getSubVideos(result.getContent());
 		if(subVideos != null && subVideos.size() > 0) {
+			log.info("sub video count: " + subVideos.size());
 			VideoTaskMapper.createSubVidelTasks(videoTaskBean, subVideos);
 		} else {
 			// TODO 解析页面失败
+			log.error("resove page failed. " + this.videoTaskBean.getUrl());
 		}
 		List<VideoCommentsBean> reviews = getReviews(getVid());
 		if (reviews.size() > 0) {
 //			VideoTaskMapper.insertComments(bean, comments);
+			log.error("reviews count: " + reviews.size());
 			for(VideoCommentsBean review : reviews) {
 				VideoTaskMapper.insertComments(videoTaskBean, review);
 			}
 		} else {
 			// TODO reviews is null
+			log.error("video review is null.");
 		}
 	}
 	
 	private String getVid() {
 		String path = Utils.getPath(videoTaskBean.getUrl());
-		System.out.println(path);
+//		System.out.println(path);
 		if(StringUtils.isBlank(path)) {
 			return null;
 		}
@@ -80,6 +94,7 @@ public class TengxunTask extends VideoTask {
 		List<VideoCommentsBean> videoComments = new ArrayList<VideoCommentsBean>();
 		if(StringUtils.isBlank(vid)) {
 			//TODO failed
+			log.error("vid is null.");
 			return videoComments;
 		}
 		String lastId = "";
@@ -89,6 +104,7 @@ public class TengxunTask extends VideoTask {
 			HttpResult result = HttpHelper.getInstance().httpGetWithRetry(reviewUrl, 3);
 			if(result.getStatusCode() != HttpStatus.SC_OK || StringUtils.isBlank(result.getContent())) {
 				// TODO log
+				log.error("get reviews http result failed. status code: " + result.getStatusCode());
 				break;
 			}
 			try {
@@ -127,7 +143,7 @@ public class TengxunTask extends VideoTask {
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("get reviews failed. ", e);
 			}
 		}
 		return videoComments;
@@ -157,7 +173,7 @@ public class TengxunTask extends VideoTask {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("get sub videos failed. ", e);
 		}
 		return subVideos;
 	}

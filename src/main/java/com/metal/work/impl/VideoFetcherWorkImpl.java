@@ -1,8 +1,5 @@
 package com.metal.work.impl;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.List;
 
 import org.quartz.Job;
@@ -16,6 +13,7 @@ import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.fetcher.VideoCommentFetcher;
 import com.metal.fetcher.fetcher.impl.IqiyiCommentFetcher;
+import com.metal.fetcher.fetcher.impl.LeTVCommentFetcher;
 import com.metal.fetcher.fetcher.impl.TengxunCommentFetcher;
 import com.metal.fetcher.fetcher.impl.YoutuCommentFetcher;
 import com.metal.fetcher.mapper.VideoTaskMapper;
@@ -50,13 +48,13 @@ public class VideoFetcherWorkImpl implements Job {
 				fetcher = new TengxunCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_YOUTU:
-//				fetcher = new YoutuCommentFetcher(bean);
+				fetcher = new YoutuCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_AQIYI:
 				fetcher = new IqiyiCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_LETV:
-				//TODO
+				fetcher = new LeTVCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_SOHU:
 				//TODO

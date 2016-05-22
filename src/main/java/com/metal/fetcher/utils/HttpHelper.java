@@ -136,6 +136,7 @@ public class HttpHelper {
 	
 	public static void main(String[] args) throws Exception {
 //		HttpHelper.getInstance().doPost("http://192.168.11.248:8080/crawlers/crawler/send_urls", null, "");
+		System.out.println(HttpHelper.getInstance().httpGet("http://www.le.com/ptv/vplay/24387403.html", null, null, new HttpHost("127.0.0.1",8888), null));
 	}
 	
 	public String doPost(String url,List<NameValuePair> pairs) {
@@ -315,9 +316,14 @@ public class HttpHelper {
 		request.setHeader(HttpHeaders.ACCEPT, "*/*");
 		request.setHeader(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN,zh;q=0.8,en;q=0.6");
 		request.setHeader(HttpHeaders.CONNECTION, "keep-alive");
-		request.setHeader(HttpHeaders.USER_AGENT, getRandomUserAgent());
-		
-		request.setHeaders(headers);
+		String ua = getRandomUserAgent();
+//		log.debug("user agent: " + ua);
+		request.setHeader(HttpHeaders.USER_AGENT, ua);
+		if(headers != null) {
+			for(Header header : headers) {
+				request.addHeader(header);
+			}
+		}
 
 		if(isRedirect == null) {
 			isRedirect = true;

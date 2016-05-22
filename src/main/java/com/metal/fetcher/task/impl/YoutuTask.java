@@ -58,9 +58,13 @@ public class YoutuTask extends VideoTask  {
 					String title = video.attr("title");
 					Element a = video.getElementsByTag("a").first();
 					String href = a.attr("href");
-					Element v = video.getElementsByAttribute("vid").first();
-					String vid = v.attr("vid");
-					String url = href + "#" + vid;
+					String url = href;
+//					Elements vs = video.getElementsByAttribute("vid");
+//					if(vs != null && vs.size() > 0) {
+//						Element v = video.getElementsByAttribute("vid").first();
+//						String vid = v.attr("vid");
+//						url = url + "#" + vid;
+//					}
 					SubVideoTaskBean subVideo = new SubVideoTaskBean();
 					subVideo.setPage_url(url);
 					subVideo.setTitle(title);
