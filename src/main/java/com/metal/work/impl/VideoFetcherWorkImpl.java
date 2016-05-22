@@ -14,6 +14,7 @@ import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.fetcher.VideoCommentFetcher;
 import com.metal.fetcher.fetcher.impl.IqiyiCommentFetcher;
 import com.metal.fetcher.fetcher.impl.LeTVCommentFetcher;
+import com.metal.fetcher.fetcher.impl.SohuCommentFetcher;
 import com.metal.fetcher.fetcher.impl.TengxunCommentFetcher;
 import com.metal.fetcher.fetcher.impl.YoutuCommentFetcher;
 import com.metal.fetcher.mapper.VideoTaskMapper;
@@ -57,7 +58,7 @@ public class VideoFetcherWorkImpl implements Job {
 				fetcher = new LeTVCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_SOHU:
-				//TODO
+				fetcher = new SohuCommentFetcher(bean);
 				break;
 			default:
 				log.error("plantform is not support: " + bean.getPlatform());

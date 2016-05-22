@@ -20,13 +20,13 @@ import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 import com.metal.fetcher.utils.Utils;
 
-public class LeTVCommentFetcher extends VideoCommentFetcher  {
+public class LeTVCommentFetcher extends VideoCommentFetcher {
 
 	private static Logger log = LoggerFactory.getLogger(LeTVCommentFetcher.class);
 	
 	private static String COMMENT_LIST_URL_FORMAT = "http://api.my.le.com/vcm/api/list?rows=%d&page=%d&xid=%s";
 	
-	private static int PER_PAGE_COUNT = 50;
+	private static final int PER_PAGE_COUNT = 50;
 	
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 	

@@ -16,6 +16,7 @@ import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
 import com.metal.fetcher.task.impl.IqiyiTask;
 import com.metal.fetcher.task.impl.LeTVTask;
+import com.metal.fetcher.task.impl.SohuTask;
 import com.metal.fetcher.task.impl.TengxunTask;
 import com.metal.fetcher.task.impl.YoutuTask;
 
@@ -59,7 +60,7 @@ public class VideoTaskWorkImpl implements Job {
 				task = new LeTVTask(bean);
 				break;
 			case Constants.PLATFORM_SOHU:
-				//TODO
+				task = new SohuTask(bean);
 				break;
 			default:
 				log.error("plantform is not support: " + bean.getPlatform());
