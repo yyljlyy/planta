@@ -20,7 +20,7 @@ import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 import com.metal.fetcher.utils.Utils;
 
-public class TengxunCommentFetcher extends VideoCommentFetcher  {
+public class TengxunCommentFetcher extends VideoCommentFetcher {
 
 	private static Logger log = LoggerFactory.getLogger(TengxunCommentFetcher.class);
 	
@@ -30,7 +30,7 @@ public class TengxunCommentFetcher extends VideoCommentFetcher  {
 	
 	private static final String COMMENT_LIST_URL_FORMAT = "http://coral.qq.com/article/%s/comment?commentid=%s&reqnum=%d&_=%d";
 	
-	private static final int PER_PAGE_COUNT = 20;
+	private static final int PER_PAGE_COUNT = 50;
 	
 	public TengxunCommentFetcher(SubVideoTaskBean bean) {
 		super(bean);
@@ -102,10 +102,10 @@ public class TengxunCommentFetcher extends VideoCommentFetcher  {
 				if(StringUtils.isNotBlank(last)) {
 					if(last.equals("false")) {
 						failedNum++;
-						if(failedNum > 20) {
+						if(failedNum > 10) {
 							break;
 						}
-						Utils.randomSleep(5, 7);
+						Utils.randomSleep(10, 10);
 						continue;
 					}
 					lastId = last;
@@ -138,7 +138,7 @@ public class TengxunCommentFetcher extends VideoCommentFetcher  {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Utils.randomSleep(1, 3);
+			Utils.randomSleep(0, 0);
 		}
 		return commentList;
 	}

@@ -16,6 +16,7 @@ import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
 import com.metal.fetcher.task.impl.IqiyiTask;
 import com.metal.fetcher.task.impl.TengxunTask;
+import com.metal.fetcher.task.impl.YoutuTask;
 
 public class VideoTaskWorkImpl implements Job {
 	
@@ -45,7 +46,7 @@ public class VideoTaskWorkImpl implements Job {
 				task = new TengxunTask(bean);
 				break;
 			case Constants.PLATFORM_YOUTU:
-				//TODO
+//				task = new YoutuTask(bean);
 				break;
 			case Constants.PLATFORM_AQIYI:
 				task = new IqiyiTask(bean);

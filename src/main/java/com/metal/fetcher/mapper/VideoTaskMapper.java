@@ -116,13 +116,13 @@ public class VideoTaskMapper {
 	
 	public static void insertComments(SubVideoTaskBean subVideo, VideoCommentsBean comment) {
 		DBUtils.update(COMMENTS_INSERT_SQL, subVideo.getPlatform() + "-" + comment.getComment_id(), 
-				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name(), comment.getPublish_time(),
+				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name().getBytes(), comment.getPublish_time(),
 				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
 	}
 	
 	public static void insertComments(VideoTaskBean video, VideoCommentsBean comment) {
 		DBUtils.update(COMMENTS_INSERT_SQL, video.getPlatform() + "-" + comment.getComment_id(), 
-				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name(), comment.getPublish_time(),
+				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name().getBytes(), comment.getPublish_time(),
 				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
 	}
 	

@@ -15,6 +15,9 @@ public class VideoCommentsBean {
 	private int type;
 	private String content;
 
+	public VideoCommentsBean() {
+	}
+	
 	public VideoCommentsBean(String comment_id, long vid, long subVid,
 			String user_id, String user_name, Date publish_time, long up_count,
 			long down_count, long re_count, int type, String content) {

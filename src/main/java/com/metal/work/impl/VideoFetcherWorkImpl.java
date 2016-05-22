@@ -17,6 +17,7 @@ import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.fetcher.VideoCommentFetcher;
 import com.metal.fetcher.fetcher.impl.IqiyiCommentFetcher;
 import com.metal.fetcher.fetcher.impl.TengxunCommentFetcher;
+import com.metal.fetcher.fetcher.impl.YoutuCommentFetcher;
 import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.SubVideoTaskBean;
 
@@ -49,7 +50,7 @@ public class VideoFetcherWorkImpl implements Job {
 				fetcher = new TengxunCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_YOUTU:
-				//TODO
+//				fetcher = new YoutuCommentFetcher(bean);
 				break;
 			case Constants.PLATFORM_AQIYI:
 				fetcher = new IqiyiCommentFetcher(bean);

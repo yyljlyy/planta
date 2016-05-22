@@ -3,6 +3,8 @@ package com.metal.fetcher.utils;
 import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 public class Utils {
 	
@@ -52,7 +54,8 @@ public class Utils {
 	}
 	
 	public static String htmlToText(String html) {
-		return html;
+		Document doc = Jsoup.parse(html);
+		return doc.text();
 	}
 	
 	public static int parseInt(String str) {
@@ -80,12 +83,20 @@ public class Utils {
 		}
 		return r;
 	}
-	
+
 	/**
 	 * sleep
 	 */
 	public static void randomSleep(int sec, int ran) {
-		int seconds = sec + RANDOM.nextInt(ran);
+		int seconds = 0;
+		if(ran <= 0) {
+			seconds = sec;
+		} else {
+			seconds = sec + RANDOM.nextInt(ran);
+		}
+		if(seconds <= 0) {
+			return;
+		}
 		try {
 			Thread.sleep(seconds * 1000);
 		} catch (InterruptedException e) {
@@ -95,8 +106,8 @@ public class Utils {
 	}
 	
 	public static void main(String[] args) {
-		for(int i=0; i<10; i++) {
-			System.out.println(RANDOM.nextInt(5));
-		}
+		randomSleep(0,0);
+		System.out.println("sdfd");
 	}
 }
+
