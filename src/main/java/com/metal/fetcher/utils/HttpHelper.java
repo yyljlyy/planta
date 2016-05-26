@@ -1,13 +1,6 @@
 package com.metal.fetcher.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import com.metal.fetcher.common.Config;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,8 +13,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -29,24 +20,27 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicHeader;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.metal.fetcher.common.Config;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * 重写isRedirected 目的机制重定向
@@ -106,7 +100,7 @@ public class HttpHelper {
 		//创建http request的配置信息
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(Config.HTTP_CONN_TIMEOUT)
-				.setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+//				.setCookieSpec(CookieSpecs.IGNORE_COOKIES)
 				.setSocketTimeout(Config.HTTP_SOCKET_TIMEOUT).build();
 		//设置重定向策略
 		LaxRedirectStrategy redirectStrategy = new LaxRedirectStrategy(){
@@ -181,7 +175,7 @@ public class HttpHelper {
      * HTTP Post 获取内容
      * @param url  请求的url地址 ?之前的地址
      * @param params 请求的参数
-     * @param charset    编码格式
+//     * @param charset    编码格式
      * @return    页面内容
      */
     public  String doPost(String url,Map<String,String> params, int timeout){
@@ -304,6 +298,24 @@ public class HttpHelper {
 		
 		return httpRequest(httpGet, headers, isRedirect, proxy, httpContext);
 	}
+
+	public HttpResult httpGet(String url, Header[] headers, String[] cookieConfig, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
+		if(StringUtils.isBlank(url)) {
+			return null;	//如果url为空或者null
+		}
+		//创建httpclient请求方式
+		HttpGet httpGet = new HttpGet(url);
+		if(cookieConfig != null && cookieConfig.length == 3) {
+			BasicCookieStore cookieStore = getCookie(cookieConfig[0], cookieConfig[1],
+					cookieConfig[2]);
+			if(httpContext == null) {
+				httpContext = new BasicHttpContext();
+			}
+			httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
+
+		}
+		return httpRequest(httpGet, headers, isRedirect, proxy, httpContext);
+	}
 	
 	private HttpResult httpRequest(HttpRequestBase request, Header[] headers, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
 		HttpResult httpResult = new HttpResult();
@@ -328,7 +340,6 @@ public class HttpHelper {
 		}
 		
 		RequestConfig requestConfig = requestBuilder.build();
-		
 		request.setConfig(requestConfig);
 
 		if(httpContext == null) {
@@ -364,7 +375,15 @@ public class HttpHelper {
 		}
 		return httpResult;
 	}
-	
+
+	private BasicCookieStore getCookie(String cookieName, String cookieVal, String domain){
+		BasicCookieStore cookieStore = new BasicCookieStore();
+		BasicClientCookie cookie = new BasicClientCookie(cookieName, cookieVal);
+		cookie.setDomain(domain);
+		cookie.setPath("/");
+		cookieStore.addCookie(cookie);
+		return cookieStore;
+	}
 //	public WebUrlResult get(String url, Map<String,String> headers, Proxy proxy, boolean allowRedirect){
 //		WebUrlResult webUrlResult = new WebUrlResult();
 //		if(null==url || "".equals(url)) {

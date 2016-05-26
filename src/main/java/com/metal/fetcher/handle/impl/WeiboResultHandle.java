@@ -79,7 +79,7 @@ public class WeiboResultHandle implements SearchFetchHandle {
 		String mid = feedItemEle.attr("mid");
 		String fid = WeiboHelper.mid2Id(mid);
 		String faceHref = feedItemEle.getElementsByClass("face").get(0).getElementsByTag("a").attr("href");
-		String uid = faceHref.substring(19, faceHref.indexOf("?"));
+		String uid = faceHref.substring(17, faceHref.indexOf("?"));
 		return WEIBO_HOST + uid + "/" + fid;
 	}
 	
