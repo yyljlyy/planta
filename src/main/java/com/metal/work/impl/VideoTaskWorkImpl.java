@@ -15,6 +15,8 @@ import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
 import com.metal.fetcher.task.impl.IqiyiTask;
+import com.metal.fetcher.task.impl.LeTVTask;
+import com.metal.fetcher.task.impl.SohuTask;
 import com.metal.fetcher.task.impl.TengxunTask;
 import com.metal.fetcher.task.impl.YoutuTask;
 
@@ -37,25 +39,28 @@ public class VideoTaskWorkImpl implements Job {
 			throws JobExecutionException {
 		List<VideoTaskBean> videoTaskList = VideoTaskMapper.getInitTasks(TASK_COUNT);
 		if(videoTaskList == null) {
+			log.info("there is no video task.");
 			return;
 		}
+		log.info("video tasks count: " + videoTaskList.size());
 		for(VideoTaskBean bean : videoTaskList) {
 			VideoTask task = null;
 			switch(bean.getPlatform()) {
 			case Constants.PLATFORM_TENGXUN:
+				log.info("teng xun task. ");
 				task = new TengxunTask(bean);
 				break;
 			case Constants.PLATFORM_YOUTU:
-//				task = new YoutuTask(bean);
+				task = new YoutuTask(bean);
 				break;
 			case Constants.PLATFORM_AQIYI:
 				task = new IqiyiTask(bean);
 				break;
 			case Constants.PLATFORM_LETV:
-				//TODO
+				task = new LeTVTask(bean);
 				break;
 			case Constants.PLATFORM_SOHU:
-				//TODO
+				task = new SohuTask(bean);
 				break;
 			default:
 				log.error("plantform is not support: " + bean.getPlatform());

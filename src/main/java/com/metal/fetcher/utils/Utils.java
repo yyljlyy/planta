@@ -53,12 +53,23 @@ public class Utils {
 		}
 	}
 	
+	public static String getLastPath(String url) {
+		if(StringUtils.isBlank(url)) {
+			return null;
+		}
+		String[] pathArr = url.split("/");
+		return pathArr[pathArr.length - 1];
+	}
+	
 	public static String htmlToText(String html) {
 		Document doc = Jsoup.parse(html);
 		return doc.text();
 	}
 	
 	public static int parseInt(String str) {
+		if(StringUtils.isBlank(str)) {
+			return 0;
+		}
 		StringBuilder result = new StringBuilder(3);
 		boolean getFlag = false;
 		for(int i=0; i<str.length(); i++) {
@@ -105,9 +116,20 @@ public class Utils {
 		}
 	}
 	
+	public static String getStrBtwn(String str, String prefix, String subfix) {
+		int start = str.indexOf(prefix);
+		if(start < 0) {
+			return null;
+		}
+		int end = str.indexOf(subfix, start + prefix.length());
+		if(end < 0 || end < start) {
+			return null;
+		}
+		return str.substring(start + prefix.length(), end);
+	}
+	
 	public static void main(String[] args) {
-		randomSleep(0,0);
-		System.out.println("sdfd");
+		System.out.println(parseInt("sdf"));
 	}
 }
 
