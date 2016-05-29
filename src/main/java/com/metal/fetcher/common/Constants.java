@@ -6,9 +6,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class Constants {
 	
-	public static void main(String[] args) {
-		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
-	}
+//	public static void main(String[] args) {
+//		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+//	}
 	
 	/** video plantform start **/
 	public static final int PLATFORM_TENGXUN = 0;

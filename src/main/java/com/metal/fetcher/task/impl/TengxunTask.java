@@ -54,7 +54,7 @@ public class TengxunTask extends VideoTask {
 			// TODO failed
 			log.error("get video home page failed. status code: " + result.getStatusCode() + "; " + this.videoTaskBean.getUrl());
 		}
-		log.debug(result.getContent());
+//		log.debug(result.getContent());
 		List<SubVideoTaskBean> subVideos = getSubVideos(result.getContent());
 		if(subVideos != null && subVideos.size() > 0) {
 			log.info("sub video count: " + subVideos.size());
