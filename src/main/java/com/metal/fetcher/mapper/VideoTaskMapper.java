@@ -61,6 +61,7 @@ public class VideoTaskMapper {
 				qr.update(conn, UPDATE_TASK_STATUS, Constants.TASK_STATUS_RUNNING, bean.getVid());				
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.error("get init tasks failed", e);
@@ -81,6 +82,7 @@ public class VideoTaskMapper {
 				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getPage_url(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, videoTaskBean.getTv_id(), video.getPd(), Constants.TASK_STATUS_INIT);
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.error("insert sub task failed", e);
@@ -105,6 +107,7 @@ public class VideoTaskMapper {
 				qr.update(conn, UPDATE_SUB_TASK_STATUS, Constants.TASK_STATUS_RUNNING, bean.getSub_vid());		
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -168,6 +171,7 @@ public class VideoTaskMapper {
 				qr.update(conn, UPDATE_TASK_STATUS, status, subVideo.getVid());
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			log.error("subTaskFinish:", e);
 		} finally {

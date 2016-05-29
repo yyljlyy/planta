@@ -45,19 +45,19 @@ public class VideoFetcherWorkImpl implements Job {
 		for(SubVideoTaskBean bean : subVideoList) {
 			VideoCommentFetcher fetcher = null;
 			switch(bean.getPlatform()) {
-			case Constants.PLATFORM_TENGXUN:
+			case Constants.VIDEO_PLATFORM_TENGXUN:
 				fetcher = new TengxunCommentFetcher(bean);
 				break;
-			case Constants.PLATFORM_YOUTU:
+			case Constants.VIDEO_PLATFORM_YOUTU:
 				fetcher = new YoutuCommentFetcher(bean);
 				break;
-			case Constants.PLATFORM_AQIYI:
+			case Constants.VIDEO_PLATFORM_AQIYI:
 				fetcher = new IqiyiCommentFetcher(bean);
 				break;
-			case Constants.PLATFORM_LETV:
+			case Constants.VIDEO_PLATFORM_LETV:
 				fetcher = new LeTVCommentFetcher(bean);
 				break;
-			case Constants.PLATFORM_SOHU:
+			case Constants.VIDEO_PLATFORM_SOHU:
 				fetcher = new SohuCommentFetcher(bean);
 				break;
 			default:

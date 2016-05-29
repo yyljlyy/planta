@@ -46,20 +46,20 @@ public class VideoTaskWorkImpl implements Job {
 		for(VideoTaskBean bean : videoTaskList) {
 			VideoTask task = null;
 			switch(bean.getPlatform()) {
-			case Constants.PLATFORM_TENGXUN:
+			case Constants.VIDEO_PLATFORM_TENGXUN:
 				log.info("teng xun task. ");
 				task = new TengxunTask(bean);
 				break;
-			case Constants.PLATFORM_YOUTU:
+			case Constants.VIDEO_PLATFORM_YOUTU:
 				task = new YoutuTask(bean);
 				break;
-			case Constants.PLATFORM_AQIYI:
+			case Constants.VIDEO_PLATFORM_AQIYI:
 				task = new IqiyiTask(bean);
 				break;
-			case Constants.PLATFORM_LETV:
+			case Constants.VIDEO_PLATFORM_LETV:
 				task = new LeTVTask(bean);
 				break;
-			case Constants.PLATFORM_SOHU:
+			case Constants.VIDEO_PLATFORM_SOHU:
 				task = new SohuTask(bean);
 				break;
 			default:
