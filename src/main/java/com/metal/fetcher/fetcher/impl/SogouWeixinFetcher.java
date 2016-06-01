@@ -2,14 +2,10 @@ package com.metal.fetcher.fetcher.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.RedirectLocations;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HttpContext;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,11 +14,15 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.fetcher.SearchFetcher;
-import com.metal.fetcher.handle.impl.CommonResultHandle;
 import com.metal.fetcher.handle.SearchFetchHandle;
+import com.metal.fetcher.mapper.ArticleTaskMapper;
+import com.metal.fetcher.model.SubTask;
+import com.metal.fetcher.model.Task;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
+import com.metal.fetcher.utils.Utils;
 
 /**
  * weixin.sogou's fetcher(search)
@@ -31,30 +31,39 @@ import com.metal.fetcher.utils.HttpHelper.HttpResult;
  */
 public class SogouWeixinFetcher extends SearchFetcher {
 
-	public SogouWeixinFetcher(String keyword, SearchFetchHandle handle) {
-		super(keyword, handle);
+	public SogouWeixinFetcher(SubTask subTask, SearchFetchHandle handle) {
+		super(subTask, handle);
 		// TODO Auto-generated constructor stub
 	}
 
 	private static Logger log = LoggerFactory.getLogger(SogouWeixinFetcher.class);
 	
-	private static final String DOMAIN = "http://weixin.sogou.com";// todo dinymic 
+//	private static final String DOMAIN = "http://weixin.sogou.com";// todo dinymic 
 	
-	private static final String URL_FORMAT = "http://weixin.sogou.com/weixin?type=2&query=%s&ie=utf8&page=%d";
+	private static final String URL_NOPAGE_FORMAT = "http://weixin.sogou.com/weixin?type=2&query=%s&ie=utf8";
 	
-	private static final int[] sleepTime = {14, 10};
+//	private static final String URL_FORMAT = "http://weixin.sogou.com/weixin?type=2&query=%s&ie=utf8&page=%d";
 	
-	private static final Random RANDOM = new Random();
+	private static final int[] sleepTime = {2, 3};
+	
+//	private static final Random RANDOM = new Random();
+	
+	public static void createSubTask(Task task) {
+		String url = String.format(URL_NOPAGE_FORMAT, task.getKey_word());
+		SubTask subTask = new SubTask();
+		subTask.setTask_id(task.getTask_id());
+		subTask.setPlatform(Constants.PLATFORM_WEIXIN);
+		subTask.setUrl(url);
+		ArticleTaskMapper.insertSubTask(subTask);
+	}
 	
 	protected void fetch() {
 		
-		String firstUrl = String.format(URL_FORMAT, keyword, 1);
-		Header header = new BasicHeader(HttpHeaders.USER_AGENT, HttpHelper.getRandomUserAgent());
+		String firstUrl = String.format(subTask.getUrl() + "&page=1");
+//		Header header = new BasicHeader(HttpHeaders.USER_AGENT, HttpHelper.getRandomUserAgent());
 		HttpResult articleListResult = HttpHelper.getInstance().httpGet(firstUrl);
 		
 		String html = articleListResult.getContent();
-		
-		System.out.println(html);
 		
 		Document doc = Jsoup.parse(html);
 		if(!isExistResult(doc)) {
@@ -63,27 +72,20 @@ public class SogouWeixinFetcher extends SearchFetcher {
 		}
 		int pageCount = getPageCount(doc);
 		if(pageCount <= 0) {
-			log.warn("search \"" + keyword + "\" result has 0 page.");
-//			return;
+			log.warn("search \"" + subTask.getUrl() + "\" result has 0 page.");
+			return;
 		}
 		Thread th1 = new Thread(new SubFetcherTask(firstUrl, articleListResult));
-		th1.start();
-		for(int i=2; i<4; i++) { // TODO pageCount
-			String url = String.format(URL_FORMAT, keyword, i);
-			Header theHeader = new BasicHeader(HttpHeaders.USER_AGENT, HttpHelper.getRandomUserAgent());
+//		th1.start();
+		th1.run(); // 单线程执行。为免被封
+		for(int i=2; i<pageCount+1; i++) { // TODO pageCount
+			String url = subTask.getUrl() + "&page=" + i;
+//			Header theHeader = new BasicHeader(HttpHeaders.USER_AGENT, HttpHelper.getRandomUserAgent());
 			Thread th = new Thread(new SubFetcherTask(url));
-			th.start();
+//			th.start();
+			th.run();
 		}
-		
-//		log.info("search \"" + keyword + "\" result has " + pageCount + " pages.");
-//		List<String> links = getAritcleUrls(doc);
-//		fetcherArticles(links, articleListResult.getContext());
-//		for(int i=2; i<pageCount; i++) {
-//			HttpResult listResult = HttpHelper.getInstance().httpGet(String.format(URL_FORMAT, keyword, 2), null, null, null, articleListResult.getContext());
-//			Document lisDoc = Jsoup.parse(html);
-//			List<String> listLinks = getAritcleUrls(lisDoc);
-//			fetcherArticles(listLinks, listResult.getContext());
-//		}
+		ArticleTaskMapper.subTaskFinish(subTask);
 	}
 
 	/**
@@ -129,7 +131,7 @@ public class SogouWeixinFetcher extends SearchFetcher {
 				try {
 					Element a = ele.getElementsByTag("a").first();
 					String link = a.attr("href");
-					links.add(DOMAIN + link);
+					links.add(Utils.buildAbsoluteUrl(subTask.getUrl(), link));
 				} catch (Exception e) {
 					log.error("Get article links failed", e);
 				}
@@ -147,34 +149,17 @@ public class SogouWeixinFetcher extends SearchFetcher {
 	 */
 	private void fetcherArticles(List<String> links, HttpContext context) {
 		for(String link : links) {
-			log.info(link);
-			randomSleep();
+			Utils.randomSleep(sleepTime[0], sleepTime[1]);
 			HttpResult articleResult = HttpHelper.getInstance().httpGet(link, null, null, null, context);
-//			System.out.println(articleResult.getResponse().getStatusLine().getStatusCode());
-//			System.out.println(articleResult.getContent());
 			
 			RedirectLocations locations = (RedirectLocations)articleResult.getContext().getAttribute(HttpClientContext.REDIRECT_LOCATIONS);
-			if(locations.size() <= 0) {
-				log.warn("the link has no redirect. maybe has some error. link: " + links);
-				log.warn("content: " + articleResult.getContent());
-				continue;
+			if(locations == null || locations.size() <= 0) {
+				log.info("article url: " + link);
+				handle.handle(subTask, link, articleResult.getContent());
 			} else {
 				log.info("article url: " + locations.get(locations.size() - 1).toString());
-				handle.handle(locations.get(locations.size() - 1).toString(), articleResult.getContent());// result handle
+				handle.handle(subTask, locations.get(locations.size() - 1).toString(), articleResult.getContent());// result handle
 			}
-		}
-	}
-
-	/**
-	 * sleep
-	 */
-	private void randomSleep() {
-		int seconds = sleepTime[0] + RANDOM.nextInt(sleepTime[1]);
-		try {
-			Thread.sleep(seconds * 1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
@@ -209,7 +194,7 @@ public class SogouWeixinFetcher extends SearchFetcher {
 				List<String> listLinks = getAritcleUrls(listDoc);
 				fetcherArticles(listLinks, httpResult.getContext());
 			} catch (Exception e) {
-				log.error("sub fetcher task failed. url: " + url);
+				log.error("sub fetcher task failed. url: " + url, e);
 			}
 		}
 		
@@ -221,8 +206,8 @@ public class SogouWeixinFetcher extends SearchFetcher {
 	}
 	
 	public static void main(String[] args) {
-		SearchFetcher fetcher = new SogouWeixinFetcher("我的吸血鬼男友", new CommonResultHandle());
-		new Thread(fetcher).start();
+//		SearchFetcher fetcher = new SogouWeixinFetcher("我的吸血鬼男友", new CommonResultHandle());
+//		new Thread(fetcher).start();
 //		new SogouWeixinFetcher().fetcher("我的吸血鬼男友");
 	}
 }

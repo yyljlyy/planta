@@ -138,7 +138,7 @@ public class TengxunCommentFetcher extends VideoCommentFetcher {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Utils.randomSleep(0, 0);
+			Utils.randomSleep(3, 3);
 		}
 		return commentList;
 	}

@@ -27,11 +27,11 @@ public class VideoTaskMapper {
 	
 	private static final String VIDEO_TASK_INSERT_SQL = "insert into video_task (url,platform,title,status) values (?,?,?,?)";
 	
-	private static final String QUERY_TASK_BY_STATUS = "select vid,url,platform,title,status,start_time,end_time from video_task where status=? limit ?";
+	private static final String QUERY_TASK_BY_STATUS = "select vid,url,platform,title,status,start_time,end_time,tv_id from video_task where status=? limit ?";
 	
 	private static final String UPDATE_TASK_STATUS = "update video_task set status=? where vid=?";
 	
-	private static final String SUB_VIDEO_TASK_INSERT_SQL = "insert into sub_video_task (vid,page_url,platform,title,pd,status) values (?,?,?,?,?,?) on DUPLICATE key UPDATE pd=?,status=?";
+	private static final String SUB_VIDEO_TASK_INSERT_SQL = "insert into sub_video_task (vid,page_url,platform,title,pd,status,tv_id) values (?,?,?,?,?,?,?) on DUPLICATE key UPDATE pd=?,status=?";
 
 	private static final String QUERY_SUB_TASK_BY_STATUS = "select sub_vid,vid,page_url,platform,title,status,add_time,last_update_time from sub_video_task where status=? limit ?";
 	
@@ -61,6 +61,7 @@ public class VideoTaskMapper {
 				qr.update(conn, UPDATE_TASK_STATUS, Constants.TASK_STATUS_RUNNING, bean.getVid());				
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.error("get init tasks failed", e);
@@ -78,9 +79,10 @@ public class VideoTaskMapper {
 			QueryRunner qr = new QueryRunner();
 			for(SubVideoTaskBean video : videoList) {
 				log.info("insert sub video: " + video);
-				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getPage_url(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, video.getPd(), Constants.TASK_STATUS_INIT);
+				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getPage_url(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, videoTaskBean.getTv_id(), video.getPd(), Constants.TASK_STATUS_INIT);
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			log.error("insert sub task failed", e);
@@ -105,6 +107,7 @@ public class VideoTaskMapper {
 				qr.update(conn, UPDATE_SUB_TASK_STATUS, Constants.TASK_STATUS_RUNNING, bean.getSub_vid());		
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,12 +118,14 @@ public class VideoTaskMapper {
 	}
 	
 	public static void insertComments(SubVideoTaskBean subVideo, VideoCommentsBean comment) {
+		log.debug("insert comment. subVideo: " + subVideo.getTitle() + "; comment: " + comment.getContent() + "; user name: " + comment.getUser_name());
 		DBUtils.update(COMMENTS_INSERT_SQL, subVideo.getPlatform() + "-" + comment.getComment_id(), 
 				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name().getBytes(), comment.getPublish_time(),
 				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
 	}
 	
 	public static void insertComments(VideoTaskBean video, VideoCommentsBean comment) {
+		log.debug("insert comment. video: " + video.getTitle() + "; comment: " + comment.getContent() + "; user name: " + comment.getUser_name());
 		DBUtils.update(COMMENTS_INSERT_SQL, video.getPlatform() + "-" + comment.getComment_id(), 
 				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name().getBytes(), comment.getPublish_time(),
 				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
@@ -166,6 +171,7 @@ public class VideoTaskMapper {
 				qr.update(conn, UPDATE_TASK_STATUS, status, subVideo.getVid());
 			}
 			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			log.error("subTaskFinish:", e);
 		} finally {

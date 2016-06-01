@@ -6,16 +6,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class Constants {
 	
-	public static void main(String[] args) {
-		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
-	}
+//	public static void main(String[] args) {
+//		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(100);
+//	}
 	
 	/** video plantform start **/
-	public static final int PLATFORM_TENGXUN = 0;
-	public static final int PLATFORM_YOUTU = 1;
-	public static final int PLATFORM_AQIYI = 2;
-	public static final int PLATFORM_LETV = 3;
-	public static final int PLATFORM_SOHU = 4;
+	public static final int VIDEO_PLATFORM_TENGXUN = 0;
+	public static final int VIDEO_PLATFORM_YOUTU = 1;
+	public static final int VIDEO_PLATFORM_AQIYI = 2;
+	public static final int VIDEO_PLATFORM_LETV = 3;
+	public static final int VIDEO_PLATFORM_SOHU = 4;
 	/** video plantform end **/
 	
 	/** task status start **/
@@ -26,5 +26,8 @@ public class Constants {
 	public static final int TASK_STATUS_EXSTOP = -2;
 	/** task status end **/
 	
-	
+	/** plantform start **/
+	public static final int PLATFORM_WEIBO = 0;
+	public static final int PLATFORM_WEIXIN = 1;
+	/** plantform end **/
 }

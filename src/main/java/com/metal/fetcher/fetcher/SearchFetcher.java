@@ -1,6 +1,7 @@
 package com.metal.fetcher.fetcher;
 
 import com.metal.fetcher.handle.SearchFetchHandle;
+import com.metal.fetcher.model.SubTask;
 
 /**
  * search fetcher
@@ -9,11 +10,11 @@ import com.metal.fetcher.handle.SearchFetchHandle;
  */
 public abstract class SearchFetcher implements Runnable {
 	
-	protected String keyword;
+	protected SubTask subTask;
 	protected SearchFetchHandle handle;
 	
-	public SearchFetcher(String keyword, SearchFetchHandle handle) {
-		this.keyword = keyword;
+	public SearchFetcher(SubTask subTask, SearchFetchHandle handle) {
+		this.subTask = subTask;
 		this.handle = handle;
 	}
 	

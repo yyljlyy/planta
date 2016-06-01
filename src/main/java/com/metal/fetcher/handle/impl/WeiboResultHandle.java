@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.handle.SearchFetchHandle;
+import com.metal.fetcher.model.SubTask;
 import com.metal.fetcher.model.WeiboJSBean;
 import com.metal.fetcher.utils.WeiboHelper;
 
@@ -29,6 +30,7 @@ public class WeiboResultHandle implements SearchFetchHandle {
 	private static final String CONTENT_FLAG = "<script>STK && STK.pageletM && STK.pageletM.view({\"pid\":\"pl_weibo_direct\"";
 	
 	@Override
+	public void handle(SubTask subTask, String url, String html) {
 	public void handle(String url, String html) {
 		if(html == null || html.length() < 1) {
 			log.error("html is null!" + url);

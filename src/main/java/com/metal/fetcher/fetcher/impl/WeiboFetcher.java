@@ -5,15 +5,8 @@ import com.metal.fetcher.handle.SearchFetchHandle;
 import com.metal.fetcher.handle.impl.WeiboResultHandle;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
-import com.metal.fetcher.utils.WeiboHelper;
-
 import org.apache.http.Header;
-import org.apache.http.client.HttpClient;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicHeader;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * weibo's fetcher(search)
@@ -28,13 +21,13 @@ public class WeiboFetcher extends SearchFetcher {
 	private static final String cookieName = "gsid_CTandWM";
 	private static final String cookieDomain = "weibo.com";
 	
-	public WeiboFetcher(String keyword, SearchFetchHandle handle) {
-		super(keyword, handle);
+	public WeiboFetcher(SubTask subTask, SearchFetchHandle handle) {
+		super(subTask, handle);
 	}
 
 	@Override
 	protected void fetch() {
-		String url = String.format(WEIBO_SEARCH_FORMAT, keyword);
+		String url = String.format(WEIBO_SEARCH_FORMAT, subTask.getUrl());
 		Header header = new BasicHeader("USER_AGENT", "BaiduSpider");
 		Header[] headers = new Header[]{header};
 		Map<String, String> cookieConfig = new HashMap<String, String>();
@@ -47,12 +40,13 @@ public class WeiboFetcher extends SearchFetcher {
 //		cookieConfig.put("gsid_CTandWM", "uboCpOz5bSAdphJQPnrp7kuv8D");
 
 		HttpResult listResult = HttpHelper.getInstance().
+//				httpGet(url);
 				httpGet(url, headers, cookieConfig, false, null, null);
 		String html = listResult.getContent();
-		handle.handle(url, html);
+		handle.handle(subTask, url, html);
 	}
 	
 	public static void main(String[] args) {
-		new Thread(new WeiboFetcher("凉生我们可不可以不忧伤", new WeiboResultHandle())).start();
+//		new Thread(new WeiboFetcher("凉生我们可不可以不忧伤", new WeiboResultHandle())).start();
 	}
 }
