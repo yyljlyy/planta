@@ -30,6 +30,10 @@ public class WeiboResultHandle implements SearchFetchHandle {
 	
 	@Override
 	public void handle(String url, String html) {
+		if(html == null || html.length() < 1) {
+			log.error("html is null!" + url);
+			return;
+		}
 		String mainHtml = getMainHtml(html);
 		if(StringUtils.isBlank(mainHtml)) {
 			//TODO LOG

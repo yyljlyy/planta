@@ -300,15 +300,14 @@ public class HttpHelper {
 		return httpRequest(httpGet, headers, isRedirect, proxy, httpContext);
 	}
 
-	public HttpResult httpGet(String url, Header[] headers, String[] cookieConfig, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
+	public HttpResult httpGet(String url, Header[] headers, Map<String, String> cookieConfig, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
 		if(StringUtils.isBlank(url)) {
 			return null;	//如果url为空或者null
 		}
 		//创建httpclient请求方式
 		HttpGet httpGet = new HttpGet(url);
-		if(cookieConfig != null && cookieConfig.length == 3) {
-			BasicCookieStore cookieStore = getCookie(cookieConfig[0], cookieConfig[1],
-					cookieConfig[2]);
+		if(cookieConfig != null && cookieConfig.size() > 0) {
+			BasicCookieStore cookieStore = getCookie(cookieConfig);
 			if(httpContext == null) {
 				httpContext = new BasicHttpContext();
 			}
@@ -382,12 +381,19 @@ public class HttpHelper {
 		return httpResult;
 	}
 
-	private BasicCookieStore getCookie(String cookieName, String cookieVal, String domain){
+	private BasicCookieStore getCookie(Map<String, String> cookies){
 		BasicCookieStore cookieStore = new BasicCookieStore();
-		BasicClientCookie cookie = new BasicClientCookie(cookieName, cookieVal);
-		cookie.setDomain(domain);
-		cookie.setPath("/");
-		cookieStore.addCookie(cookie);
+		BasicClientCookie cookie;
+		String domain = (cookies.get("domain"));
+		for (String cookieName: cookies.keySet()) {
+			if(cookieName.equals("domain")) {
+				continue;
+			}
+			cookie = new BasicClientCookie(cookieName, cookies.get(cookieName));
+			cookie.setDomain(domain);
+			cookie.setPath("/");
+			cookieStore.addCookie(cookie);
+		}
 		return cookieStore;
 	}
 //	public WebUrlResult get(String url, Map<String,String> headers, Proxy proxy, boolean allowRedirect){
