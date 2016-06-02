@@ -3,8 +3,11 @@ package com.metal.fetcher.fetcher.impl;
 import com.metal.fetcher.fetcher.SearchFetcher;
 import com.metal.fetcher.handle.SearchFetchHandle;
 import com.metal.fetcher.handle.impl.WeiboResultHandle;
+import com.metal.fetcher.model.SubTask;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
+import com.metal.fetcher.utils.WeiboHelper;
+
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
@@ -29,11 +32,12 @@ public class WeiboFetcher extends SearchFetcher {
 	protected void fetch() {
 		String url = String.format(WEIBO_SEARCH_FORMAT, subTask.getUrl());
 		Header header = new BasicHeader("USER_AGENT", "BaiduSpider");
-		Header[] headers = new Header[]{header};
-		Map<String, String> cookieConfig = new HashMap<String, String>();
-		cookieConfig.put("domain", cookieDomain);
-		cookieConfig.put("SSOLoginState", String.valueOf(1464267218));
-		cookieConfig.put("SUB", WeiboHelper.getCookie());
+		Header cookie = new BasicHeader("Cookie", WeiboHelper.getCookie());
+		Header[] headers = new Header[]{header, cookie};
+//		Map<String, String> cookieConfig = new HashMap<String, String>();
+//		cookieConfig.put("domain", cookieDomain);
+//		cookieConfig.put("SSOLoginState", String.valueOf(1464267218));
+//		cookieConfig.put("SUB", WeiboHelper.getCookie());
 //		cookieConfig.put("SUBP", "0033WrSXqPxfM725Ws9jqgMF55529P9D9WFVNLIoDNUoq9en3xc083Gv5JpX5o2p5NHD95QpS0BNehqNSKefWs4DqcjCi");
 //		cookieConfig.put("SUHB", "0QSIfMuFn1j0EE");
 //		cookieConfig.put("_T_WM", "46fab587f3b55cc535b5dc32595f29f4");
@@ -41,7 +45,7 @@ public class WeiboFetcher extends SearchFetcher {
 
 		HttpResult listResult = HttpHelper.getInstance().
 //				httpGet(url);
-				httpGet(url, headers, cookieConfig, false, null, null);
+				httpGet(url, headers, null, false, null, null);
 		String html = listResult.getContent();
 		handle.handle(subTask, url, html);
 	}

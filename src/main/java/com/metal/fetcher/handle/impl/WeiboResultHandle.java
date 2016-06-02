@@ -31,7 +31,7 @@ public class WeiboResultHandle implements SearchFetchHandle {
 	
 	@Override
 	public void handle(SubTask subTask, String url, String html) {
-	public void handle(String url, String html) {
+//	public void handle(String url, String html) {
 		if(html == null || html.length() < 1) {
 			log.error("html is null!" + url);
 			return;
