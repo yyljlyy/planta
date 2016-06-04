@@ -44,7 +44,14 @@ public class YoutuTask extends VideoTask  {
 		try {
 			Document doc = Jsoup.parse(html);
 			Element tvList = doc.getElementsByClass("tvlists").first();
-			Elements list = tvList.getElementsByAttributeValue("name", "tvlist");
+			Elements list = null;
+			if(tvList == null) {
+				tvList = doc.getElementById("playlist_content");
+				list = tvList.getElementsByTag("li");
+			} else {
+				list = tvList.getElementsByAttributeValue("name", "tvlist");
+			}
+			
 			for(Element video : list) {
 				try {
 					String pds = video.attr("seq");
