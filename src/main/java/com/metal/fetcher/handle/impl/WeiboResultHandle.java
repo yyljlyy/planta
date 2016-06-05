@@ -88,8 +88,7 @@ public class WeiboResultHandle implements SearchFetchHandle {
 					WeiboJSBean bean = MAPPER.readValue(jsonStr, WeiboJSBean.class);
 					return bean.getHtml();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("weibo getMainHtml error:", e);
 				}
 			}
 		}

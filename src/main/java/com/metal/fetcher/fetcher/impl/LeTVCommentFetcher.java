@@ -39,12 +39,12 @@ public class LeTVCommentFetcher extends VideoCommentFetcher {
 		String url = this.bean.getPage_url();
 		String lastPath = Utils.getLastPath(url);
 		if(StringUtils.isBlank(lastPath)) {
-			// TODO
+			log.warn("get url's lastPath is null:" + url);
 			return;
 		}
 		String vid = lastPath.split("\\.")[0];
 		if(StringUtils.isBlank(vid)) {
-			// TODO
+			log.warn("get vid is null:" + url);
 			return;
 		}
 		List<VideoCommentsBean> commentList = getComments(vid);
@@ -53,7 +53,7 @@ public class LeTVCommentFetcher extends VideoCommentFetcher {
 				handle.handle(bean, comment);
 			}
 		} else {
-			// TODO comments is null
+			log.warn("get comments is null:" + vid);
 		}
 		VideoTaskMapper.subTaskFinish(bean); // sub task finish
 	}
@@ -66,7 +66,7 @@ public class LeTVCommentFetcher extends VideoCommentFetcher {
 			String url = String.format(COMMENT_LIST_URL_FORMAT, PER_PAGE_COUNT, page++, vid);
 			HttpResult result = HttpHelper.getInstance().httpGetWithRetry(url, 3);
 			if(result == null || result.getStatusCode() != HttpStatus.SC_OK || StringUtils.isBlank(result.getContent())) {
-				// TODO failed.
+				log.warn("get leTV comments url is not reachable:" + url);
 				break;
 			}
 			String jsonResult = result.getContent();
@@ -75,7 +75,7 @@ public class LeTVCommentFetcher extends VideoCommentFetcher {
 				total = root.get("total").asInt();
 				JsonNode data = root.get("data");
 				if(data == null || data.size() <=0) {
-					// TODO
+					log.warn("parse comments is null:" + vid);
 					break;
 				}
 				for(JsonNode comment : data) {

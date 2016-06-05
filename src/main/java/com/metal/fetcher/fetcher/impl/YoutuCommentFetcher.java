@@ -61,23 +61,16 @@ public class YoutuCommentFetcher extends VideoCommentFetcher  {
 				handle.handle(bean, comment);
 			}
 		} else {
-			// TODO comments is null
+			log.warn("Youtu fetch comments is null:" + this.getVid());
 		}
 		VideoTaskMapper.subTaskFinish(bean); // sub task finish
 	}
 	
 	private String getVid() {
 		String url = this.bean.getPage_url();
-//		String[] urlArr = url.split("#");
-//		if(urlArr.length < 2) {
-//			//TODO
-//			return null;
-//		}
-//		String vid = urlArr[urlArr.length - 1];
-//		return vid;
 		HttpResult result = HttpHelper.getInstance().httpGetWithRetry(url, 3);
 		if(result == null || result.getStatusCode() != HttpStatus.SC_OK || StringUtils.isBlank(result.getContent())) {
-			//TODO
+			log.warn("Youtu get vid url is not reachable:" + url);
 			return null;
 		}
 		String html = result.getContent();
@@ -101,8 +94,7 @@ public class YoutuCommentFetcher extends VideoCommentFetcher  {
 			try {
 				param = URLEncoder.encode(String.format(COMMENT_PARAM_FORMAT, vid, tm, page++), "utf-8");
 			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("get commentList url handle error:", e);
 			}
 			if(StringUtils.isBlank(param)) {
 				//TODO failed
@@ -160,8 +152,7 @@ public class YoutuCommentFetcher extends VideoCommentFetcher  {
 					commentList.add(commentBean);
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Youtu get commentList error:", e);
 			}
 			log.info("total: " + total + "; sum: " + commentList.size());
 			if(commentList.size() >= total) {

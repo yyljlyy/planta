@@ -63,7 +63,9 @@ public class IqiyiTask extends VideoTask {
 	public void task() {
 		handleoHomePage(videoTaskBean.getUrl());
 		String arListUrl = String.format(ARTICLE_LIST_FORMAT, albumId, albumId);
-		log.debug(arListUrl);
+		if(log.isDebugEnabled()) {
+			log.debug("iqiyi task :" + arListUrl);
+		}
 		handleArticleList(arListUrl);
 		log.info("video count: " + videoList.size());
 		VideoTaskMapper.createSubVidelTasks(videoTaskBean, videoList);
@@ -78,7 +80,7 @@ public class IqiyiTask extends VideoTask {
 				VideoTaskMapper.insertComments(videoTaskBean, review);
 			}
 		} else {
-			// TODO reviews is null
+			log.warn("iqiyi reviews task is null");
 		}
 	}
 
@@ -133,8 +135,6 @@ public class IqiyiTask extends VideoTask {
 		String tvName = getVar(infoContent, "tvName");
 
 		PageInfo pageInfo = new PageInfo(albumId, tvId, cid, pageUrl, tvName);
-
-		// log.info(pageInfo.toString());
 		return pageInfo;
 	}
 
