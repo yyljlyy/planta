@@ -1,6 +1,7 @@
 package com.metal.fetcher.handle.impl;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.handle.SearchFetchHandle;
+import com.metal.fetcher.mapper.ArticleTaskMapper;
+import com.metal.fetcher.model.Article;
 import com.metal.fetcher.model.SubTask;
 import com.metal.fetcher.model.WeiboJSBean;
 import com.metal.fetcher.utils.WeiboHelper;
@@ -32,6 +35,7 @@ public class WeiboResultHandle implements SearchFetchHandle {
 	@Override
 	public void handle(SubTask subTask, String url, String html) {
 //	public void handle(String url, String html) {
+		log.info("result handle...");
 		if(html == null || html.length() < 1) {
 			log.error("html is null!" + url);
 			return;
@@ -47,8 +51,25 @@ public class WeiboResultHandle implements SearchFetchHandle {
 		for(Element ele : eles) {
 			try {
 				String feedItemUrl = getFeedItemUrlByHtml(ele);
-				String contentHtml = ele.getElementsByAttributeValue("node-type", "feed_list_content").get(0).html();
-				feedHandle(feedItemUrl, contentHtml);
+				String content = ele.getElementsByAttributeValue("node-type", "feed_list_content").get(0).text();
+				Element face = ele.getElementsByClass("face").get(0).getElementsByTag("a").get(0);
+				String userName = face.attr("title");
+				String userHref = face.attr("href");
+				String userId = getUidFromUrl(userHref);
+				String tmStr = ele.getElementsByAttributeValue("node-type", "feed_list_item_date").get(0).attr("date");
+				Date pubTime = new Date(Long.parseLong(tmStr));
+				
+				Article article = new Article();
+				article.setUrl(feedItemUrl);
+				article.setContent(content);
+				article.setAuthor_id(userId);
+				article.setAuthor_name(userName);
+				article.setPlatform(subTask.getPlatform());
+				article.setPublish_time(pubTime);
+				
+				ArticleTaskMapper.insertArticle(subTask.getTask_id(), article);
+				
+				log.info("url: " + feedItemUrl + "; content: " + content);
 			} catch (Exception e) {
 				log.error("get feed item url or content failed. ", e);
 				continue;
@@ -89,13 +110,24 @@ public class WeiboResultHandle implements SearchFetchHandle {
 		return WEIBO_HOST + uid + "/" + fid;
 	}
 	
-	public static void main(String[] args) {
-		String str = "{\"pid\":\"123\",\"js\":[],\"css\":[],\"html\":\"\"}";
-		try {
-			WeiboJSBean bean = MAPPER.readValue(str, WeiboJSBean.class);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	private String getUidFromUrl(String url) {
+		int start = url.lastIndexOf("/");
+		int end = url.lastIndexOf("?");
+		if(end < 0) {
+			return url.substring(start+1);
+		} else {
+			return url.substring(start+1, end);
 		}
+	}
+	
+	public static void main(String[] args) {
+//		String str = "{\"pid\":\"123\",\"js\":[],\"css\":[],\"html\":\"\"}";
+//		try {
+//			WeiboJSBean bean = MAPPER.readValue(str, WeiboJSBean.class);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		System.out.println(new WeiboResultHandle().getUidFromUrl("http://weibo.com/u/1864365024?refer_flag=1001030103_"));
 	}
 }

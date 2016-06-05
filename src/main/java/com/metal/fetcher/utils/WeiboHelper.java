@@ -27,6 +27,10 @@ public class WeiboHelper {
 
 	private static final String pwd = "ming7957";
 
+//	private static final String userName = "15911129640";
+//
+//	private static final String pwd = "219891weibo";
+	
 	private static final char[] DIGITS_LOWER = { '0', '1', '2', '3', '4', '5',
 						     '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 

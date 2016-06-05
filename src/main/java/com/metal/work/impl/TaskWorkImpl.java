@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.common.Config;
 import com.metal.fetcher.fetcher.impl.SogouWeixinFetcher;
+import com.metal.fetcher.fetcher.impl.WeiboFetcher;
 import com.metal.fetcher.mapper.ArticleTaskMapper;
 import com.metal.fetcher.model.Task;
 
@@ -29,6 +30,7 @@ public class TaskWorkImpl implements Job {
 		}
 		for(Task task : tasks) {
 			SogouWeixinFetcher.createSubTask(task);
+			WeiboFetcher.createSubTask(task);
 			//TODO
 		}
 	}

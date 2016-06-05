@@ -13,7 +13,9 @@ import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.fetcher.SearchFetcher;
 import com.metal.fetcher.fetcher.impl.SogouWeixinFetcher;
+import com.metal.fetcher.fetcher.impl.WeiboFetcher;
 import com.metal.fetcher.handle.impl.SogouWeixinResultHandle;
+import com.metal.fetcher.handle.impl.WeiboResultHandle;
 import com.metal.fetcher.mapper.ArticleTaskMapper;
 import com.metal.fetcher.model.SubTask;
 
@@ -34,7 +36,7 @@ public class FetcherWorkImpl implements Job {
 			SearchFetcher fetcher = null;
 			switch(subTask.getPlatform()) {
 			case Constants.PLATFORM_WEIBO:
-				//TODO
+				fetcher = new WeiboFetcher(subTask, new WeiboResultHandle());
 				break;
 			case Constants.PLATFORM_WEIXIN:
 				//TODO
