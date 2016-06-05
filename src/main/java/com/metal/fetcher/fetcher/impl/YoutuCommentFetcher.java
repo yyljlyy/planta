@@ -123,8 +123,8 @@ public class YoutuCommentFetcher extends VideoCommentFetcher  {
 				Element comments = doc.getElementsByClass("comments").first();
 				Elements list = comments.getElementsByClass("comment");
 				if(list.size() == 0) {
-					page--;
-					continue;
+					// TODO
+					break;
 				}
 				
 				for(Element comment : list) {

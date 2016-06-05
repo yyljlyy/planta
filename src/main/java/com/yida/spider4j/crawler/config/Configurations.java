@@ -18,7 +18,7 @@ public class Configurations {
 
 	static {
 		// 读取爬虫配置文件
-		prop = PropertiesUtils.loadPropertyFile("/src/main/resources/spider4j.properties", DEBUG);
+		prop = PropertiesUtils.loadPropertyFile("load.properties", DEBUG);
 		if (null == prop) {
 			throw new ConfigInitialException("An exception occurs as initialize the crawler configuration file.");
 		}

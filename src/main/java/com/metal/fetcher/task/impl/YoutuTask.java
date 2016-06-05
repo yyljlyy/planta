@@ -46,13 +46,20 @@ public class YoutuTask extends VideoTask  {
 		
 		try {
 			Document doc = Jsoup.parse(html);
-			Element tvList = doc.getElementsByClass("tvlists").first();
+			Element tvList = doc.getElementById("Drama_playlist");
+			
+			Elements items = tvList.getElementsByClass("items");
+			if(items == null) {
+				items = tvList.getElementsByClass("mvitems");
+			}
+			
 			Elements list = null;
-			if(tvList == null) {
-				tvList = doc.getElementById("playlist_content");
-				list = tvList.getElementsByTag("li");
+			
+			if(items == null || items.size() == 0) {
+				//TODO
+				return null;
 			} else {
-				list = tvList.getElementsByAttributeValue("name", "tvlist");
+				list = items.get(0).getElementsByClass("item");
 			}
 			
 			for(Element video : list) {

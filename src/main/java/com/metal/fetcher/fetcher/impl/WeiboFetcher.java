@@ -12,6 +12,7 @@ import com.metal.fetcher.common.Config;
 import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.fetcher.SearchFetcher;
 import com.metal.fetcher.handle.SearchFetchHandle;
+import com.metal.fetcher.handle.impl.WeiboResultHandle;
 import com.metal.fetcher.mapper.ArticleTaskMapper;
 import com.metal.fetcher.model.SubTask;
 import com.metal.fetcher.model.Task;
@@ -176,33 +177,33 @@ public class WeiboFetcher extends SearchFetcher {
 	public static void main(String[] args) {
 //		new Thread(new WeiboFetcher("凉生我们可不可以不忧伤", new WeiboResultHandle())).start();
 		
-//		WeiboResultHandle handle = new WeiboResultHandle();
-//		Result result = null;
-//		try {
-//			result = WeiboHelper.login("15911129640", "219891weibo");
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		if(result == null) {
-//			return;
-//		}
-//		Header cookie = new BasicHeader("Cookie", result.getCookie());
-//		log.info("cookie: " + result.getCookie());
-//		for(int page=1; page<10;page++) {
-//			String url = "http://s.weibo.com/weibo/%25E7%25BB%2586%25E9%2595%25BF%25E7%259B%25B4&page=" + page;
-//			Utils.randomSleep(1, 3);
-//			System.out.println(url);
-//			HttpResult httpResult = HttpHelper.getInstance().httpGet(url, new Header[]{cookie}, null, false, null, null);
-//			handle.handle(null, url, httpResult.getContent());
-//		}
-		
+		WeiboResultHandle handle = new WeiboResultHandle();
+		Result result = null;
 		try {
-			System.out.println(URLEncoder.encode("窦靖童","utf-8"));
-		} catch (UnsupportedEncodingException e) {
+			result = WeiboHelper.login("15911129640", "219891weibo");
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if(result == null) {
+			return;
+		}
+		Header cookie = new BasicHeader("Cookie", result.getCookie());
+		log.info("cookie: " + result.getCookie());
+		for(int page=1; page<10;page++) {
+			String url = "http://s.weibo.com/weibo/%25E7%25BB%2586%25E9%2595%25BF%25E7%259B%25B4&page=" + page;
+			Utils.randomSleep(1, 3);
+			System.out.println(url);
+			HttpResult httpResult = HttpHelper.getInstance().httpGet(url, new Header[]{cookie}, null, false, null, null);
+			handle.handle(null, url, httpResult.getContent());
+		}
+		
+//		try {
+//			System.out.println(URLEncoder.encode("窦靖童","utf-8"));
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 	}
 }
