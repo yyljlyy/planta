@@ -1,26 +1,28 @@
 package com.metal.fetcher.fetcher.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import com.metal.fetcher.common.Config;
 import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.fetcher.SearchFetcher;
 import com.metal.fetcher.handle.SearchFetchHandle;
-import com.metal.fetcher.handle.impl.WeiboResultHandle;
 import com.metal.fetcher.mapper.ArticleTaskMapper;
 import com.metal.fetcher.model.SubTask;
 import com.metal.fetcher.model.Task;
+import com.metal.fetcher.model.WeiboAccount;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 import com.metal.fetcher.utils.Utils;
 import com.metal.fetcher.utils.WeiboHelper;
-import com.yida.spider4j.crawler.auth.login.SimpleFormLogin;
-import com.yida.spider4j.crawler.test.sina.login.LoginTest;
 import com.yida.spider4j.crawler.utils.httpclient.Result;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
@@ -37,10 +39,20 @@ public class WeiboFetcher extends SearchFetcher {
 
 	private static Logger log = LoggerFactory.getLogger(WeiboFetcher.class);
 	
-	private static String WEIBO_SEARCH_FORMAT = "http://s.weibo.com/weibo/%s";
+	private static final String WEIBO_SEARCH_FORMAT = "http://s.weibo.com/weibo/%s";
 //	private static String WEIBO_SEARCH_FORMAT = "http://www.weibo.cn/search/mblog?hideSearchFrame=&keyword=%s";
 
-	private int WEIBO_PAGE_COUNT = Config.getIntProperty("weibo_page_count");
+	private static final int WEIBO_PAGE_COUNT = Config.getIntProperty("weibo_page_count");
+	
+	private static final String WEIBO_ACCOUNT_SAVE_FILE = Config.getProperty("weibo_account_save");
+	
+	private static final List<WeiboAccount> weiboAccountList = new ArrayList<WeiboAccount>();
+	
+	private static final Random RANDOM = new Random();
+	
+	static {
+		initAccount();
+	}
 	
 	public WeiboFetcher(SubTask subTask, SearchFetchHandle handle) {
 		super(subTask, handle);
@@ -54,7 +66,7 @@ public class WeiboFetcher extends SearchFetcher {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String url = String.format(WEIBO_SEARCH_FORMAT, task.getKey_word());
+		String url = String.format(WEIBO_SEARCH_FORMAT, keyWord);
 		SubTask subTask = new SubTask();
 		subTask.setTask_id(task.getTask_id());
 		subTask.setPlatform(Constants.PLATFORM_WEIBO);
@@ -62,15 +74,83 @@ public class WeiboFetcher extends SearchFetcher {
 		ArticleTaskMapper.insertSubTask(subTask);
 	}
 	
+	private WeiboAccount getRandomAccount() {
+		return weiboAccountList.get(RANDOM.nextInt() % weiboAccountList.size());
+	}
+	
+	private static void initAccount() {
+		readWeiboAccount();
+		saveWeiboAccount();
+	}
+	
+	private static void readWeiboAccount() {
+		File accountFile = new File(WEIBO_ACCOUNT_SAVE_FILE);
+		List<String> lines = null;
+		try {
+			lines = FileUtils.readLines(accountFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(String line : lines) {
+			if(StringUtils.isBlank(line)) {
+				continue;
+			}
+			String[] arr = line.split("\t");
+			if(arr.length < 2) {
+				continue;
+			}
+			String account = arr[0].trim();
+			String pwd = arr[1].trim();
+			String cookie = null;
+			if(arr.length >= 3) {
+				cookie = arr[2].trim();
+			}
+			WeiboAccount weiboAccount = new WeiboAccount(account, pwd, cookie);
+			if(StringUtils.isBlank(cookie)) {
+				weiboAccountBuildCookie(weiboAccount);
+			}
+			if(StringUtils.isBlank(weiboAccount.getCookie())) {
+				log.warn("get weibo cookie failed. account: " + account + "; pwd: " + pwd);
+				continue;
+			}
+			
+			weiboAccountList.add(weiboAccount);
+		}
+	}
+	
+	private static void saveWeiboAccount() {
+		List<String> lines = new ArrayList<String>();
+		for(WeiboAccount account : weiboAccountList) {
+			lines.add(account.toString());
+		}
+		try {
+			FileUtils.writeLines(new File(WEIBO_ACCOUNT_SAVE_FILE), lines);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static void weiboAccountBuildCookie(WeiboAccount account) {
+		try {
+			Result result = WeiboHelper.login(account.getAccount(), account.getPwd());
+			account.setCookie(WeiboHelper.getSUB(result.getCookie()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	protected void fetch() {
 //		String url = String.format(WEIBO_SEARCH_FORMAT, subTask.getUrl());
-		Header agent = new BasicHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider");
-		Header cookie = new BasicHeader("Cookie", WeiboHelper.getCookie()); // TODO
+//		Header agent = new BasicHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider");
+		WeiboAccount weiboAccount = getRandomAccount();
+		Header cookie = new BasicHeader("Cookie", weiboAccount.getCookie()); // TODO
 		
 		log.info("cookie: " + cookie.getValue());
 		
-		Header[] headers = new Header[]{agent, cookie};
+		Header[] headers = new Header[]{cookie};
 		for(int page=1; page<=WEIBO_PAGE_COUNT; page++) {
 			Utils.randomSleep(1, 2);
 			String url = subTask.getUrl() + "&page=" + page;

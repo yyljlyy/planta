@@ -27,10 +27,6 @@ public class WeiboHelper {
 
 	private static final String pwd = "ming7957";
 
-//	private static final String userName = "15911129640";
-//
-//	private static final String pwd = "219891weibo";
-	
 	private static final char[] DIGITS_LOWER = { '0', '1', '2', '3', '4', '5',
 						     '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -69,26 +65,26 @@ public class WeiboHelper {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(mid2Id("3895087044141925"));
+		System.out.println(mid2Id("3982334178635175"));
 		//登录账号和密码
-		String account = "17090117957";
-		String pwd = "ming7957";
-
-		try {
-			//新浪微博登录
-			Result result = login(account,pwd);
-			String cookie = result.getCookie();
-			cookie = getSUB(cookie);
-			System.out.println("cookie:" + cookie);
-
-			Map<String,String> headers = new HashMap<String,String>();
-			headers.put("Cookie", cookie);
-			String html = HttpClientUtils.getHTML("http://www.weibo.cn/search/mblog?hideSearchFrame=&keyword=凉生我们可不可以不忧伤&page=2",headers);
-			System.out.printf(html);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-		}
+//		String account = "17090117957";
+//		String pwd = "ming7957";
+//
+//		try {
+//			//新浪微博登录
+//			Result result = login(account,pwd);
+//			String cookie = result.getCookie();
+//			cookie = getSUB(cookie);
+//			System.out.println("cookie:" + cookie);
+//
+//			Map<String,String> headers = new HashMap<String,String>();
+//			headers.put("Cookie", cookie);
+//			String html = HttpClientUtils.getHTML("http://www.weibo.cn/search/mblog?hideSearchFrame=&keyword=凉生我们可不可以不忧伤&page=2",headers);
+//			System.out.printf(html);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} finally {
+//		}
 	}
 
 	public static String getSUB(String cookie) {

@@ -8,6 +8,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,9 @@ public class ArticleTaskMapper {
 			List<Integer> articleIds = qr.query(conn, QUERY_ARTICLEID_BY_URL, new ColumnListHandler<Integer>(), article.getUrl());
 			long articleId = 0;
 			if(articleIds == null || articleIds.size() == 0) {
-				articleIds = qr.query(conn, QUERY_ARTICLEID_BY_PLATFORM_AND_TITLE, new ColumnListHandler<Integer>(), article.getPlatform(), article.getTitle());
+				if(StringUtils.isNotBlank(article.getTitle())) {
+					articleIds = qr.query(conn, QUERY_ARTICLEID_BY_PLATFORM_AND_TITLE, new ColumnListHandler<Integer>(), article.getPlatform(), article.getTitle());
+				}
 				if(articleIds == null || articleIds.size() == 0) {
 					articleId = qr.insert(conn, INSERT_ARTICLE, new ScalarHandler<Long>(), article.getUrl(), article.getPlatform(), article.getTitle(), 
 							article.getDescription(), article.getAuthor_id(), article.getAuthor_name().getBytes(), article.getPublish_time(), 1);

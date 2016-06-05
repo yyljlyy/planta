@@ -50,14 +50,17 @@ public class WeiboResultHandle implements SearchFetchHandle {
 		Elements eles = doc.getElementsByAttributeValue("action-type", "feed_list_item");
 		for(Element ele : eles) {
 			try {
-				String feedItemUrl = getFeedItemUrlByHtml(ele);
+				String mid = ele.attr("mid");
 				String content = ele.getElementsByAttributeValue("node-type", "feed_list_content").get(0).text();
 				Element face = ele.getElementsByClass("face").get(0).getElementsByTag("a").get(0);
 				String userName = face.attr("title");
-				String userHref = face.attr("href");
-				String userId = getUidFromUrl(userHref);
+				String userCard = face.getElementsByTag("img").attr("usercard");
+				int endIndex = userCard.indexOf("&");
+				String userId = userCard.substring(3, endIndex);
 				String tmStr = ele.getElementsByAttributeValue("node-type", "feed_list_item_date").get(0).attr("date");
 				Date pubTime = new Date(Long.parseLong(tmStr));
+				
+				String feedItemUrl = "http://weibo.com/" + userId + "/" + WeiboHelper.mid2Id(mid);
 				
 				Article article = new Article();
 				article.setUrl(feedItemUrl);
@@ -96,11 +99,22 @@ public class WeiboResultHandle implements SearchFetchHandle {
 		return null;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param url
+	 * @param content
+	 */
 	private void feedHandle(String url, String content) {
 		// TODO 
 		System.out.println("url: " + url + "; content: " + content);
 	}
 
+	/**
+	 * @deprecated
+	 * @param feedItemEle
+	 * @return
+	 * @throws Exception
+	 */
 	private String getFeedItemUrlByHtml(Element feedItemEle) throws Exception {
 		// TODO uid get error
 		String mid = feedItemEle.attr("mid");
@@ -110,6 +124,11 @@ public class WeiboResultHandle implements SearchFetchHandle {
 		return WEIBO_HOST + uid + "/" + fid;
 	}
 	
+	/**
+	 * @deprecated
+	 * @param url
+	 * @return
+	 */
 	private String getUidFromUrl(String url) {
 		int start = url.lastIndexOf("/");
 		int end = url.lastIndexOf("?");
