@@ -68,8 +68,7 @@ public class TengxunCommentFetcher extends VideoCommentFetcher {
 			String commentId = root.get("comment_id").asText();
 			return commentId;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("get commentId error:", e);
 		}
 		return null;
 	}
@@ -135,8 +134,7 @@ public class TengxunCommentFetcher extends VideoCommentFetcher {
 					break;
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("getCommentList error, cid:" + cid, e);
 			}
 			Utils.randomSleep(3, 3);
 		}

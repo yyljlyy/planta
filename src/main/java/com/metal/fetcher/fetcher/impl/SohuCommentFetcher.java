@@ -41,7 +41,6 @@ public class SohuCommentFetcher extends VideoCommentFetcher   {
 		String url = this.bean.getPage_url();
 		String[] urlArr = url.split("#");
 		if(url.length() < 2) {
-			//TODO
 			log.error("url is wrong. url: " + url);
 			return;
 		}
@@ -97,7 +96,7 @@ public class SohuCommentFetcher extends VideoCommentFetcher   {
 			String url = String.format(COMMENT_LIST_URL_FORMAT, page++, PER_PAGE_COUNT, topicId);
 			HttpResult result = HttpHelper.getInstance().httpGetWithRetry(url, 3);
 			if(result == null || result.getStatusCode() != HttpStatus.SC_OK || StringUtils.isBlank(result.getContent())) {
-				// TODO failed.
+				log.warn("get soho comments url is not reachable:" + url);
 				break;
 			}
 			String jsonResult = result.getContent();
@@ -106,7 +105,7 @@ public class SohuCommentFetcher extends VideoCommentFetcher   {
 				total = root.get("cmt_sum").asInt();
 				JsonNode comments = root.get("comments");
 				if(comments == null || comments.size() <=0) {
-					// TODO
+					log.warn("Sohu comment parse result null:" + topicId);
 					break;
 				}
 				for(JsonNode comment : comments) {

@@ -117,8 +117,9 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 				int size = comments.size();
 				if (size == 0) {
 					// TODO
-					log.debug("get nothing");
-					log.debug("video comment count: " + commentCount);
+					if(log.isDebugEnabled()) {
+						log.debug("get nothing, video comment count: " + commentCount);
+					}
 					break;
 				}
 				for (int i = 0; i < size; i++) {
@@ -142,7 +143,9 @@ public class IqiyiCommentFetcher extends VideoCommentFetcher {
 							likes, 0L, replies, 0, content));
 				}
 				commentCount += size;
-				log.debug("video comment count: " + commentCount);
+				if(log.isDebugEnabled()) {
+					log.debug("video comment count: " + commentCount);
+				}
 				if (commentCount >= count) {
 					log.info("get comments finish. comment count: " + commentCount);
 					break;

@@ -9,6 +9,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.SubVideoTaskBean;
@@ -18,6 +20,7 @@ import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 
 public class YoutuTask extends VideoTask  {
+	private static Logger log = LoggerFactory.getLogger(TengxunTask.class);
 
 	public YoutuTask(VideoTaskBean videoTaskBean) {
 		super(videoTaskBean);
@@ -78,13 +81,11 @@ public class YoutuTask extends VideoTask  {
 					subVideo.setPd(pd);
 					subVideos.add(subVideo);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("youtu get sub video error:", e);
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("youtu get sub video error:", e);
 		}
 		return subVideos;
 	}
