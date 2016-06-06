@@ -287,12 +287,12 @@ public class CrawlConfig {
 	 */
 	public void initialize() {
 		this.crawlBaseDir = Configurations
-				.getStringProperty("spider.base_dir", "C:/spider/");
+				.getStringProperty("spider.base_dir", "/Users/wxp/Documents/tmp/spider/");
 		this.crawlStorageFolder = Configurations
-			.getStringProperty("spider.data_store_dir", "C:/spider/data/");
+			.getStringProperty("spider.data_store_dir", "/Users/wxp/Documents/tmp/spider/data/");
 		
 		this.crawlResumeFolder = Configurations
-			.getStringProperty("spider.data_resume_dir", "C:/spider/temp/");
+			.getStringProperty("spider.data_resume_dir", "/Users/wxp/Documents/tmp/spider/temp/");
 		
 		this.resumableCrawling = Configurations
 			.getBooleanProperty("spider.enable_resume", false);
