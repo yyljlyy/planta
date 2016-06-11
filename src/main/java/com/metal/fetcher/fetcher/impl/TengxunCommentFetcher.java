@@ -28,6 +28,9 @@ public class TengxunCommentFetcher extends VideoCommentFetcher {
 	
 	private static final String GET_COMMENT_ID_URL_FORMAT = "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?otype=json&low_login=1&op=3&vid=%s";
 	
+	// film
+	private static final String GET_COMMENT_ID_URL_FORMAT2 = "http://ncgi.video.qq.com/fcgi-bin/video_comment_id?otype=json&low_login=1&op=3&cid=%s";
+	
 	private static final String COMMENT_LIST_URL_FORMAT = "http://coral.qq.com/article/%s/comment?commentid=%s&reqnum=%d&_=%d";
 	
 	private static final int PER_PAGE_COUNT = 50;
@@ -54,7 +57,12 @@ public class TengxunCommentFetcher extends VideoCommentFetcher {
 		String[] urlArr = this.bean.getPage_url().split("/");
 		String urlEnd = urlArr[urlArr.length - 1];
 		String vid = urlEnd.split("\\.")[0];
-		String commentIdUrl = String.format(GET_COMMENT_ID_URL_FORMAT, vid);
+		String commentIdUrl = null;
+		if(urlArr.length == 5) {
+			commentIdUrl = String.format(GET_COMMENT_ID_URL_FORMAT, vid);
+		} else { // urlArr.length == 4
+			commentIdUrl = String.format(GET_COMMENT_ID_URL_FORMAT2, vid);
+		}
 		HttpResult result = HttpHelper.getInstance().httpGetWithRetry(commentIdUrl, 3);
 		if(result.getStatusCode() != HttpStatus.SC_OK || StringUtils.isBlank(result.getContent())) {
 			return null;

@@ -58,11 +58,15 @@ public class TengxunTask extends VideoTask {
 		List<SubVideoTaskBean> subVideos = getSubVideos(result.getContent());
 		if(subVideos != null && subVideos.size() > 0) {
 			log.info("sub video count: " + subVideos.size());
-			VideoTaskMapper.createSubVidelTasks(videoTaskBean, subVideos);
 		} else {
-			// TODO 解析页面失败
-			log.error("resove page failed. " + this.videoTaskBean.getUrl());
+			// film
+			log.info("this is a film. " + this.videoTaskBean.getUrl());
+			SubVideoTaskBean subVideo = new SubVideoTaskBean();
+			subVideo.setPage_url(this.videoTaskBean.getUrl());
+			subVideo.setTitle(this.videoTaskBean.getTitle());
+			subVideos.add(subVideo);
 		}
+		VideoTaskMapper.createSubVidelTasks(videoTaskBean, subVideos);
 		List<VideoCommentsBean> reviews = getReviews(getVid());
 		if (reviews.size() > 0) {
 //			VideoTaskMapper.insertComments(bean, comments);

@@ -48,9 +48,9 @@ public class YoutuTask extends VideoTask  {
 			Document doc = Jsoup.parse(html);
 			Element tvList = doc.getElementById("Drama_playlist");
 			
-			Elements items = tvList.getElementsByClass("items");
+			Elements items = tvList.getElementsByClass("mvitems");
 			if(items == null) {
-				items = tvList.getElementsByClass("mvitems");
+				items = tvList.getElementsByClass("items");
 			}
 			
 			Elements list = null;

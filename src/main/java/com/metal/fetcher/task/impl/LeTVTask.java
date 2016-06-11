@@ -74,10 +74,10 @@ public class LeTVTask extends VideoTask {
 				String url = video.get("url").asText();
 //				String date = video.get("releaseDate").asText();
 				String pds = video.get("episode").asText();
-				if(StringUtils.isBlank(pds)) {
-					// TODO
-					continue;
-				}
+//				if(StringUtils.isBlank(pds)) {
+//					// TODO
+//					continue;
+//				}
 				int pd = 0;
 				try {
 					pd = Integer.parseInt(pds);

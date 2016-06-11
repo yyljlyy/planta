@@ -68,6 +68,12 @@ public class IqiyiTask extends VideoTask {
 		}
 		handleArticleList(arListUrl);
 		log.info("video count: " + videoList.size());
+		if(videoList.size() == 0) {
+			SubVideoTaskBean subVideo = new SubVideoTaskBean();
+			subVideo.setPage_url(this.videoTaskBean.getUrl());
+			subVideo.setTitle(this.videoTaskBean.getTitle());
+			videoList.add(subVideo);
+		}
 		VideoTaskMapper.createSubVidelTasks(videoTaskBean, videoList);
 		
 		String aid = IqiyiTask.getAid(html);
@@ -218,7 +224,7 @@ public class IqiyiTask extends VideoTask {
 				}
 				videoList.add(subVideo);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("handleArticleList:", e);;
 		}
 	}
