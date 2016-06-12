@@ -58,8 +58,10 @@ public class LeTVTask extends VideoTask {
 		}
 		List<SubVideoTaskBean> subVideos = parseSubVideoTasks(videoListResult.getContent());
 		if(subVideos != null && subVideos.size() > 0) {
+			log.info("sub video count: " + subVideos.size());
 			VideoTaskMapper.createSubVidelTasks(videoTaskBean, subVideos);
 		} else {
+			log.error("sub video count is null. url: " + this.videoTaskBean.getUrl());
 			// TODO 解析页面失败
 		}
 	}
@@ -90,7 +92,7 @@ public class LeTVTask extends VideoTask {
 				bean.setPd(pd);
 				subVideos.add(bean);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("video list resove failed. ", e);
 		}

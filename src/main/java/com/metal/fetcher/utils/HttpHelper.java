@@ -604,9 +604,11 @@ public class HttpHelper {
 		for(int i=0; i<retry; i++) {
 			result = httpGet(url);
 			if(result.getStatusCode() != HttpStatus.SC_OK) {
+				log.warn("get failed. status code: " + result.getStatusCode());
 				continue;
 			}
 			if(StringUtils.isBlank(result.getContent())) {
+				log.warn("get failed. content is null.");
 				continue;
 			}
 		}
