@@ -166,6 +166,9 @@ public class WeiboFetcher extends SearchFetcher {
 					break;
 				} else {
 					log.warn("http request failed. url: " + url);
+					weiboAccountBuildCookie(weiboAccount);
+					log.info("cookie: " + cookie.getValue());
+					headers = new Header[]{cookie};
 					continue;
 				}
 			}
