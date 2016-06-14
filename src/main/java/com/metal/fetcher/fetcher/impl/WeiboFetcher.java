@@ -76,7 +76,7 @@ public class WeiboFetcher extends SearchFetcher {
 	}
 	
 	private WeiboAccount getRandomAccount() {
-		return weiboAccountList.get(RANDOM.nextInt() % weiboAccountList.size());
+		return weiboAccountList.get(Math.abs(RANDOM.nextInt() % weiboAccountList.size()));
 	}
 	
 	private static void initAccount() {
@@ -118,6 +118,7 @@ public class WeiboFetcher extends SearchFetcher {
 			
 			weiboAccountList.add(weiboAccount);
 		}
+		log.info("weibo account count: " + weiboAccountList.size());
 	}
 	
 	private static void saveWeiboAccount() {
@@ -146,7 +147,9 @@ public class WeiboFetcher extends SearchFetcher {
 	protected void fetch() {
 //		String url = String.format(WEIBO_SEARCH_FORMAT, subTask.getUrl());
 //		Header agent = new BasicHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider");
+		log.info("weibo fetcher task: " + this.subTask.getUrl());
 		WeiboAccount weiboAccount = getRandomAccount();
+		log.info("weibo accout: " + weiboAccount);
 		Header cookie = new BasicHeader("Cookie", weiboAccount.getCookie()); // TODO
 		
 		log.info("cookie: " + cookie.getValue());
@@ -180,26 +183,26 @@ public class WeiboFetcher extends SearchFetcher {
 	public static void main(String[] args) {
 //		new Thread(new WeiboFetcher("凉生我们可不可以不忧伤", new WeiboResultHandle())).start();
 		
-		WeiboResultHandle handle = new WeiboResultHandle();
-		Result result = null;
-		try {
-			result = WeiboHelper.login("15911129640", "219891weibo");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if(result == null) {
-			return;
-		}
-		Header cookie = new BasicHeader("Cookie", result.getCookie());
-		log.info("cookie: " + result.getCookie());
-		for(int page=1; page<10;page++) {
-			String url = "http://s.weibo.com/weibo/%25E7%25BB%2586%25E9%2595%25BF%25E7%259B%25B4&page=" + page;
-			Utils.randomSleep(1, 3);
-			System.out.println(url);
-			HttpResult httpResult = HttpHelper.getInstance().httpGet(url, new Header[]{cookie}, null, false, null, null);
-			handle.handle(null, url, httpResult.getContent());
-		}
+//		WeiboResultHandle handle = new WeiboResultHandle();
+//		Result result = null;
+//		try {
+//			result = WeiboHelper.login("15911129640", "219891weibo");
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		if(result == null) {
+//			return;
+//		}
+//		Header cookie = new BasicHeader("Cookie", result.getCookie());
+//		log.info("cookie: " + result.getCookie());
+//		for(int page=1; page<10;page++) {
+//			String url = "http://s.weibo.com/weibo/%25E7%25BB%2586%25E9%2595%25BF%25E7%259B%25B4&page=" + page;
+//			Utils.randomSleep(1, 3);
+//			System.out.println(url);
+//			HttpResult httpResult = HttpHelper.getInstance().httpGet(url, new Header[]{cookie}, null, false, null, null);
+//			handle.handle(null, url, httpResult.getContent());
+//		}
 		
 //		try {
 //			System.out.println(URLEncoder.encode("窦靖童","utf-8"));
@@ -207,6 +210,8 @@ public class WeiboFetcher extends SearchFetcher {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		
+		for(int i=0; i<10; i++) {
+			System.out.println(Math.abs(RANDOM.nextInt() % weiboAccountList.size()));
+		}
 	}
 }

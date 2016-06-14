@@ -1,5 +1,8 @@
 package com.metal.fetcher.fetcher;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.metal.fetcher.handle.SearchFetchHandle;
 import com.metal.fetcher.model.SubTask;
 
@@ -10,6 +13,8 @@ import com.metal.fetcher.model.SubTask;
  */
 public abstract class SearchFetcher implements Runnable {
 	
+	private static Logger log = LoggerFactory.getLogger(SearchFetcher.class);
+	
 	protected SubTask subTask;
 	protected SearchFetchHandle handle;
 	
@@ -19,7 +24,11 @@ public abstract class SearchFetcher implements Runnable {
 	}
 	
 	public void run() {
-		fetch();
+		try{
+			fetch();
+		} catch(Exception e) {
+			log.error("fetcher failed. url: " + this.subTask.getUrl(), e);
+		}
 	}
 	
 	abstract protected void fetch();
