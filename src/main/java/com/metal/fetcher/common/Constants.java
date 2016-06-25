@@ -29,5 +29,8 @@ public class Constants {
 	/** plantform start **/
 	public static final int PLATFORM_WEIBO = 0;
 	public static final int PLATFORM_WEIXIN = 1;
+	public static final int PLATFORM_TIANYA = 7;
+	public static final int PLATFORM_ZHIHU = 8;
+	public static final int PLATFORM_DOUBAN = 9;
 	/** plantform end **/
 }

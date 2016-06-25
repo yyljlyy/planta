@@ -603,6 +603,10 @@ public class HttpHelper {
 		HttpResult result = null;
 		for(int i=0; i<retry; i++) {
 			result = httpGet(url);
+			if(result == null) {
+				log.warn("get failed. null");
+				continue;
+			}
 			if(result.getStatusCode() != HttpStatus.SC_OK) {
 				log.warn("get failed. status code: " + result.getStatusCode());
 				continue;
