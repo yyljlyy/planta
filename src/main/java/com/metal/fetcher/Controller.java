@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import com.metal.fetcher.common.Config;
 import com.metal.fetcher.common.QuartzManager;
 import com.metal.work.impl.FetcherWorkImpl;
+import com.metal.work.impl.ResetTaskImpl;
 import com.metal.work.impl.ResetVideoTaskImpl;
 import com.metal.work.impl.TaskWorkImpl;
 import com.metal.work.impl.VideoFetcherWorkImpl;
@@ -26,7 +27,9 @@ public class Controller {
 	private static String TASK_SCHEDULE = Config.getProperty("task_schedule");
 	private static String SUB_TASK_SCHEDULE = Config.getProperty("sub_task_schedule");
 	
-	private static String CHECK_RESET_SCHEDULE = Config.getProperty("check_reset_schedule");
+	private static String VIDEO_CHECK_RESET_SCHEDULE = Config.getProperty("video_check_reset_schedule");
+	
+	private static String TASK_CHECK_RESET_SCHEDULE = Config.getProperty("task_check_reset_schedule");
 	
 	public static void main(String[] args) {
 		start();
@@ -50,9 +53,13 @@ public class Controller {
 			QuartzManager.addJob("sub-task-work", FetcherWorkImpl.class, SUB_TASK_SCHEDULE);
 		}
 		
-		if(StringUtils.isNotBlank(CHECK_RESET_SCHEDULE)) {
-			log.info("check-and-reset-video-task: " + CHECK_RESET_SCHEDULE);
-			QuartzManager.addJob("check-and-reset-video-task", ResetVideoTaskImpl.class, CHECK_RESET_SCHEDULE);
+		if(StringUtils.isNotBlank(VIDEO_CHECK_RESET_SCHEDULE)) {
+			log.info("check-and-reset-video-task: " + VIDEO_CHECK_RESET_SCHEDULE);
+			QuartzManager.addJob("check-and-reset-video-task", ResetVideoTaskImpl.class, VIDEO_CHECK_RESET_SCHEDULE);
+		}
+		if(StringUtils.isNotBlank(TASK_CHECK_RESET_SCHEDULE)) {
+			log.info("check-and-reset-task: " + TASK_CHECK_RESET_SCHEDULE);
+			QuartzManager.addJob("check-and-reset-task", ResetTaskImpl.class, TASK_CHECK_RESET_SCHEDULE);
 		}
 	}
 }

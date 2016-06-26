@@ -2,6 +2,8 @@ package com.metal.fetcher.mapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.dbutils.QueryRunner;
@@ -9,20 +11,24 @@ import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.metal.fetcher.common.Constants;
 import com.metal.fetcher.model.Article;
 import com.metal.fetcher.model.SubTask;
-import com.metal.fetcher.model.SubVideoTaskBean;
 import com.metal.fetcher.model.Task;
-import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.utils.DBHelper;
 import com.metal.fetcher.utils.DBUtils;
 
 public class ArticleTaskMapper {
 	private static Logger log = LoggerFactory.getLogger(ArticleTaskMapper.class);
+	
+	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
 	private static final String QUERY_TASK_BY_STATUS = "select task_id,key_word,status,start_time,end_time from task where status=? limit ?";
 	
@@ -43,6 +49,8 @@ public class ArticleTaskMapper {
 	private static final String INSERT_TASK_ARTICLE = "insert ignore into task_article(task_id,article_id) values(?,?)";
 	
 	private static final String UPDATE_SUB_TASK_STATUS = "update sub_task set status=? where sub_task_id=?";
+	
+	private static final String RESET_SUB_TASK = "update sub_task set status=0,start_time=now() where sub_task_id=?";
 	
 	private static final String UPDATE_TASK_STATUS = "update task set status=? where task_id=?";
 	
@@ -167,5 +175,38 @@ public class ArticleTaskMapper {
 			DBHelper.release(conn);
 		}
 		return subTasks;
+	}
+	
+	public static void checkAndReSetSubTasks() {
+		Connection conn = null;
+		try {
+			conn = DBHelper.getInstance().getConnection();
+			conn.setAutoCommit(false);
+			QueryRunner qr = new QueryRunner();
+			// TODO
+			DateTime now = new DateTime();
+			int hour = now.getHourOfDay();
+			DateTime hourTime = DateTime.parse(now.toString("yyyy-MM-dd HH:00:00"), DATE_FORMAT);
+			List<Integer> taskIds = qr.query(conn, "select task_id from sub_task where status!=0 and reset_hour>0 and start_time<? and ?%reset_hour=0", new ColumnListHandler<Integer>(), hourTime.toString(DATE_FORMAT), hour);
+			if(taskIds != null && taskIds.size() > 0) {
+				log.info("task id: " + taskIds);
+				for(int id : taskIds) {
+					qr.update(conn, "update task set status=?,start_time=now() where task_id=? and status!=?", Constants.TASK_STATUS_RUNNING, id, Constants.TASK_STATUS_RUNNING);
+				}
+				qr.update(conn, "update sub_task set status=?, start_time=now() where status!=0 and reset_hour>0 and start_time<? and ?%reset_hour=0", Constants.TASK_STATUS_INIT, hourTime.toString(DATE_FORMAT), hour);
+			} else {
+				log.info("no sub task need to reset");
+			}
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			log.error("get check sub task failed.", e);
+		} finally {
+			DBHelper.release(conn);
+		}
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(DateTime.now().toString());
 	}
 }

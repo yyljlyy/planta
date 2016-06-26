@@ -54,7 +54,7 @@ public class LoginTest {
 		String html = visitWenZhang(cookie);
 		
 		//把返回的html内容写入文件，方便打开进行验证是否正确返回
-		FileUtils.writeFile(html, "C:/wenzhang.html", "UTF-8", false);
+		FileUtils.writeFile(html, "/Users/wxp/Documents/tmp/wenzhang.html", "UTF-8", false);
 		
 		
 	}

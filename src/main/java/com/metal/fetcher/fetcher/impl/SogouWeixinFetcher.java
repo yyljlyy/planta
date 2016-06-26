@@ -44,7 +44,7 @@ public class SogouWeixinFetcher extends SearchFetcher {
 	
 //	private static final String URL_FORMAT = "http://weixin.sogou.com/weixin?type=2&query=%s&ie=utf8&page=%d";
 	
-	private static final int[] sleepTime = {2, 3};
+	private static final int[] sleepTime = {1, 2};
 	
 //	private static final Random RANDOM = new Random();
 	
