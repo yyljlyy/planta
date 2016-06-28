@@ -134,22 +134,22 @@
 	    <version>1.8.2</version>
 	</dependency>
 
-    <dependency>
+    <!--<dependency>
 		<groupId>org.codehaus.jackson</groupId>
 		<artifactId>jackson-mapper-asl</artifactId>
 		<version>1.9.13</version>
-	</dependency>
+	</dependency>-->
 	<dependency>
 		<groupId>com.fasterxml.jackson.dataformat</groupId>
 		<artifactId>jackson-dataformat-xml</artifactId>
 		<version>2.6.3</version>
 	</dependency>
-		
-	<dependency>
+	<!-- 原项目未使用依赖 -->
+	<!--<dependency>
 	    <groupId>cn.strong</groupId>
 	    <artifactId>fastdfs-client</artifactId>
 	    <version>1.0.0</version>
-	</dependency>
+	</dependency>-->
 	<dependency>
 		<groupId>commons-dbutils</groupId>
 		<artifactId>commons-dbutils</artifactId>
@@ -166,7 +166,6 @@
 		<version>5.1.32</version>
 		<scope>runtime</scope>
 	</dependency>
-	
 	<dependency>
 		<groupId>org.codehaus.jackson</groupId>
 		<artifactId>jackson-mapper-asl</artifactId>
@@ -202,5 +201,24 @@
             <artifactId>joda-time</artifactId>
             <version>2.3</version>
         </dependency>
+      <!-- https://mvnrepository.com/artifact/net.sourceforge.htmlcleaner/htmlcleaner -->
+      <dependency>
+          <groupId>net.sourceforge.htmlcleaner</groupId>
+          <artifactId>htmlcleaner</artifactId>
+          <version>2.2</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.sleepycat/je -->
+      <dependency>
+          <groupId>com.sleepycat</groupId>
+          <artifactId>je</artifactId>
+          <version>5.0.73</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.sun.istack/maven-istack-commons-plugin -->
+      <dependency>
+          <groupId>com.sun.istack</groupId>
+          <artifactId>maven-istack-commons-plugin</artifactId>
+          <version>2.11</version>
+      </dependency>
+
   </dependencies>
 </project>

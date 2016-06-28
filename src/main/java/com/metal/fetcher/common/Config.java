@@ -11,7 +11,10 @@ public class Config {
 	
 	private static Logger log = LoggerFactory.getLogger(Config.class);
 
-	private static final String defaultConfigFile = "load.properties";
+	// TODO
+	static {
+		init();
+	}
 
 	public static final Integer HTTP_MAX_TOTAL = getIntProperty("http.max.total");
 	public static final Integer HTTP_MAX_ROUTE = getIntProperty("http.max.route");
@@ -19,11 +22,6 @@ public class Config {
 	public static final Integer HTTP_SOCKET_TIMEOUT = getIntProperty("http.socket.timeout");
 	
 	private static Properties props;
-
-	// TODO
-	static {
-		init();
-	}
 
 	private Config() {
 		// should not call
@@ -38,7 +36,7 @@ public class Config {
 		loadDefaultConfig(p);
 		return p;
 	}
-
+	private static final String defaultConfigFile = "load.properties";
 	private static void loadDefaultConfig(final Properties props) {
 		InputStream input = null;
 		try {
