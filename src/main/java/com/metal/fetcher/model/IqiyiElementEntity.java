@@ -12,7 +12,7 @@ public class IqiyiElementEntity implements Serializable{
     private String albumId;
 
     /** 视频Id */
-    private String vId;
+    private String vid;
 
     /** 视频类别 */
     private String cid;
@@ -30,17 +30,17 @@ public class IqiyiElementEntity implements Serializable{
         this.albumId = albumId;
     }
 
-    public IqiyiElementEntity(String albumId, String vId, String cid, String pageUrl, String tvName) {
+    public IqiyiElementEntity(String albumId, String vid, String cid, String pageUrl, String tvName) {
         this.albumId = albumId;
-        this.vId = vId;
+        this.vid = vid;
         this.cid = cid;
         this.pageUrl = pageUrl;
         this.tvName = tvName;
     }
 
-    public IqiyiElementEntity(String albumId, String vId, String cid, String pageUrl) {
+    public IqiyiElementEntity(String albumId, String vid, String cid, String pageUrl) {
         this.albumId = albumId;
-        this.vId = vId;
+        this.vid = vid;
         this.cid = cid;
         this.pageUrl = pageUrl;
     }
@@ -53,12 +53,12 @@ public class IqiyiElementEntity implements Serializable{
         this.albumId = albumId;
     }
 
-    public String getvId() {
-        return vId;
+    public String getVid() {
+        return vid;
     }
 
-    public void setvId(String vId) {
-        this.vId = vId;
+    public void setVid(String vid) {
+        this.vid = vid;
     }
 
     public String getCid() {

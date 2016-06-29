@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import com.metal.fetcher.model.BarrageEntity;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.slf4j.Logger;
@@ -184,7 +185,31 @@ public class VideoTaskMapper {
 	public static void checkAndReset() {
 		DBUtils.update(CHECK_AND_RESET_SQL, new Object[]{});
 	}
-	
+
+	/** 保存弹幕 */
+	public static void insertBarrages(SubVideoTaskBean subVideo, List<BarrageEntity> barrageList){
+		Connection conn = null;
+		List<SubVideoTaskBean> beans = null;
+		String sql = "INSERT INTO tv_barrage (tv_show_id, tv_show_vidio_no, barrage_site, barrage_site_domain, barrage_site_description, barrage_id, barrage_content, barrage_show_time, barrage_user_uuid, barrage_user_name, barrage_is_replay, barrage_replay_id, create_time) VALUES (？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？)";
+		try {
+			conn = DBHelper.getInstance().getConnection();
+			conn.setAutoCommit(false);
+			QueryRunner qr = new QueryRunner();
+//			beans = qr.query(conn, QUERY_SUB_TASK_BY_STATUS, new BeanListHandler<SubVideoTaskBean>(SubVideoTaskBean.class), Constants.TASK_STATUS_INIT, limit);
+			for(BarrageEntity barrageEntity : barrageList) {
+				qr.update(conn, sql, barrageEntity);
+			}
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			DBHelper.release(conn);
+		}
+	}
+
+
 	public static void main(String[] args) {
 //		insertVideoTask("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1", Contants.PLATFORM_AQIYI, "最好的我们");
 		List<VideoTaskBean> list = queryInitTasks();

@@ -25,7 +25,7 @@ public abstract class VideoCommentFetcher implements Runnable {
 
 	/**
 	 * fetch
-	 * 
+	 *
 	 * @param bean
 	 */
 	abstract public void fetch();
