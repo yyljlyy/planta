@@ -5,6 +5,10 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import com.metal.fetcher.common.CodeEnum;
+import com.metal.fetcher.mapper.sqlmapper.BarrageSQL;
+import com.metal.fetcher.mapper.sqlmapper.SubTaskSQL;
+import com.metal.fetcher.mapper.sqlmapper.VideoTaskSQL;
 import com.metal.fetcher.model.BarrageEntity;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -19,6 +23,7 @@ import com.metal.fetcher.task.impl.IqiyiTask.Comment;
 import com.metal.fetcher.task.impl.IqiyiTask.Video;
 import com.metal.fetcher.utils.DBHelper;
 import com.metal.fetcher.utils.DBUtils;
+import org.springframework.scheduling.annotation.Async;
 
 public class VideoTaskMapper {
 	
@@ -187,17 +192,44 @@ public class VideoTaskMapper {
 	}
 
 	/** 保存弹幕 */
-	public static void insertBarrages(SubVideoTaskBean subVideo, List<BarrageEntity> barrageList){
+	public static int insertBarrages(SubVideoTaskBean subVideo, List<BarrageEntity> barrageList){
+		//插入所有弹幕
+		int count =0;
 		Connection conn = null;
 		List<SubVideoTaskBean> beans = null;
-		String sql = "INSERT INTO tv_barrage (tv_show_id, tv_show_vidio_no, barrage_site, barrage_site_domain, barrage_site_description, barrage_id, barrage_content, barrage_show_time, barrage_user_uuid, barrage_user_name, barrage_is_replay, barrage_replay_id, create_time) VALUES (？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？, ？)";
 		try {
 			conn = DBHelper.getInstance().getConnection();
 			conn.setAutoCommit(false);
 			QueryRunner qr = new QueryRunner();
-//			beans = qr.query(conn, QUERY_SUB_TASK_BY_STATUS, new BeanListHandler<SubVideoTaskBean>(SubVideoTaskBean.class), Constants.TASK_STATUS_INIT, limit);
 			for(BarrageEntity barrageEntity : barrageList) {
-				qr.update(conn, sql, barrageEntity);
+				count = count + qr.update(conn, BarrageSQL.INSERT_BARRAGE, barrageEntity.getTv_show_id(),barrageEntity.getTv_show_vidio_no(),barrageEntity.getBarrage_platform(),barrageEntity.getBarrage_site_domain(),barrageEntity.getBarrage_site_description(),
+						barrageEntity.getBarrage_id(),barrageEntity.getBarrage_content(),barrageEntity.getBarrage_show_time(),barrageEntity.getBarrage_user_uuid(),
+						barrageEntity.getBarrage_user_name(),barrageEntity.getBarrage_is_replay(),barrageEntity.getBarrage_replay_id(),barrageEntity.getCreate_time());
+			}
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			DBHelper.release(conn);
+		}
+		return count;
+	}
+
+	/** 查询弹幕任务，根据弹幕抓取状态 */
+	@Async
+	public static List<SubVideoTaskBean> getInitSubTasks(String barrageStatus,int limit) {
+		Connection conn = null;
+		List<SubVideoTaskBean> beans = null;
+		try {
+			conn = DBHelper.getInstance().getConnection();
+			conn.setAutoCommit(false);
+			QueryRunner qr = new QueryRunner();
+			//查询弹幕初始化任务，条数为5
+			beans = qr.query(conn, SubTaskSQL.QUERY_SUBTASK_BY_BARRAGE_STAUTUS, new BeanListHandler<SubVideoTaskBean>(SubVideoTaskBean.class), barrageStatus, limit);
+			for(SubVideoTaskBean bean : beans) {
+				//修改弹幕任务为正在运行
+				qr.update(conn, SubTaskSQL.EDIT_BARRAGE_STATUS, CodeEnum.BarrageStatusEnum.RUNNING.getCode(), bean.getSub_vid());
 			}
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -207,12 +239,53 @@ public class VideoTaskMapper {
 		} finally {
 			DBHelper.release(conn);
 		}
+		return beans;
 	}
-
 
 	public static void main(String[] args) {
 //		insertVideoTask("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1", Contants.PLATFORM_AQIYI, "最好的我们");
 		List<VideoTaskBean> list = queryInitTasks();
 		System.out.println(list);
+	}
+
+	/** 弹幕抓取任务完成 */
+	public static void barrageSubTaskFinish(SubVideoTaskBean subVideoTaskbean) {
+		Connection conn = null;
+		try {
+			conn = DBHelper.getInstance().getConnection();
+			conn.setAutoCommit(false);
+			QueryRunner qr = new QueryRunner();
+			//修改弹幕任务状态为已完成
+			qr.update(conn, SubTaskSQL.EDIT_BARRAGE_STATUS, CodeEnum.BarrageStatusEnum.FINISH.getCode(), subVideoTaskbean.getSub_vid());
+
+			List<SubVideoTaskBean> subVideos = qr.query(conn, QUERY_SUB_TASK_BY_VID, new BeanListHandler<SubVideoTaskBean>(SubVideoTaskBean.class), subVideoTaskbean.getVid());
+
+			// check video status
+			int barrage_status = Constants.TASK_STATUS_FINISH;
+			for(SubVideoTaskBean bean : subVideos) {
+				if(bean.getBarrage_status() == Constants.TASK_STATUS_INIT || bean.getBarrage_status() == Constants.TASK_STATUS_RUNNING) {
+					barrage_status = Constants.TASK_STATUS_RUNNING;
+					break;
+				}
+				if(bean.getBarrage_status() == Constants.TASK_STATUS_STOP) {
+					barrage_status = Constants.TASK_STATUS_STOP;
+					continue;
+				}
+				if(bean.getBarrage_status() == Constants.TASK_STATUS_EXSTOP) {
+					barrage_status = Constants.TASK_STATUS_EXSTOP;
+					continue;
+				}
+			}
+			if(barrage_status != Constants.TASK_STATUS_RUNNING) {
+				qr.update(conn, VideoTaskSQL.EDIT_VIDEO_TASK_BARRAGE_STATUS, barrage_status, subVideoTaskbean.getVid());
+			}
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			log.error("subTaskFinish:", e);
+		} finally {
+			DBHelper.release(conn);
+		}
+
 	}
 }

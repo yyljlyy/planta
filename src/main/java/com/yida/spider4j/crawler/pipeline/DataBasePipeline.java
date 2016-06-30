@@ -104,7 +104,7 @@ public class DataBasePipeline implements Pipeline {
 		if(params == null || params.length <= 0) {
 			return;
 		}
-		//若没有设置主键,则生成insert SQL
+		//若没有设置主键,则生成insert sqlmapper
 		if(StringUtils.isEmpty(this.uniqueKey)) {
 			//若用户没传入待执行的SQL语句
 			if(StringUtils.isEmpty(sql)) {

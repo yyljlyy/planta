@@ -38,6 +38,7 @@ public class VideoTaskWorkImpl implements Job {
 	public void execute(JobExecutionContext context)
 			throws JobExecutionException {
 		List<VideoTaskBean> videoTaskList = VideoTaskMapper.getInitTasks(TASK_COUNT);
+
 		if(videoTaskList == null) {
 			log.info("there is no video task.");
 			return;

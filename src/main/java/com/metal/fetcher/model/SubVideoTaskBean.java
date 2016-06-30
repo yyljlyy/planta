@@ -17,6 +17,29 @@ public class SubVideoTaskBean {
 	private int status;
 	private Date add_time;
 	private Date last_update_time;
+
+	/** tv_show Id */
+	private int tv_id;
+
+	/** 弹幕任务状态：0: 初始; 1: 运⾏中; 2: 完成; -1: ⼿手动结束; -2: 异常结束 */
+	private int barrage_status;
+
+	public int getBarrage_status() {
+		return barrage_status;
+	}
+
+	public void setBarrage_status(int barrage_status) {
+		this.barrage_status = barrage_status;
+	}
+
+	public int getTv_id() {
+		return tv_id;
+	}
+
+	public void setTv_id(int tv_id) {
+		this.tv_id = tv_id;
+	}
+
 	public long getSub_vid() {
 		return sub_vid;
 	}

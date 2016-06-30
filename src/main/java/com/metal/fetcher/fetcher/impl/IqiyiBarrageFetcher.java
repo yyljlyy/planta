@@ -2,7 +2,9 @@ package com.metal.fetcher.fetcher.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.metal.fetcher.common.CodeEnum;
 import com.metal.fetcher.fetcher.VideoBarrageFetcher;
+import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.BarrageEntity;
 import com.metal.fetcher.model.IqiyiElementEntity;
 import com.metal.fetcher.model.SubVideoTaskBean;
@@ -10,7 +12,6 @@ import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 import net.sf.json.JSON;
 import net.sf.json.xml.XMLSerializer;
-import org.apache.commons.io.IOExceptionWithCause;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.InflaterInputStream;
 
@@ -90,14 +92,19 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
             //TODO
         }
         /** 4.db */
+        int count = 0;
         if(!barrageList.isEmpty() && barrageList.size()>0){
-            handle.handle(subVideoTaskBean,barrageList);
+            count = handle.handle(subVideoTaskBean,barrageList);
         }else{
             logger.warn("========= no barrage =========");
         }
+        //任务完成
+        if(count > 0){
+            VideoTaskMapper.barrageSubTaskFinish(subVideoTaskBean);
+        }
+        logger.info("=========== end Iqiyi capture barrage process===========");
         //提醒回收
         System.gc();
-        logger.info("=========== end Iqiyi capture barrage process===========");
     }
 
     /**
@@ -182,13 +189,30 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 be.setBarrage_content(jobct.getString("content"));
                 be.setBarrage_replay_id(jobct.getString("contentId"));
                 be.setBarrage_show_time(jobct.getString("showTime"));
-                be.setBarrage_site(1);
+                be.setBarrage_platform(CodeEnum.PlatformEnum.I_QIYI.getCode());
+                be.setBarrage_site_description(subVideoTaskBean.getTitle());
                 be.setBarrage_site_domain(subVideoTaskBean.getPage_url());
+                be.setCreate_time(new Date());
+                try{
+                    if(null != jobct.getJSONObject("userInfo").getString("uid") && "" != jobct.getJSONObject("userInfo").getString("uid")){
+
+                    }else{
+                        be.setBarrage_user_uuid(jobct.getJSONObject("userInfo").getString("udid"));//匿名用户
+                    }
+                }catch (Exception e){
+                    be.setBarrage_user_uuid(jobct.getJSONObject("userInfo").getString("udid"));
+                }
                 be.setBarrage_user_name(jobct.getJSONObject("userInfo").getString("name"));
-                be.setBarrage_user_uuid(jobct.getJSONObject("userInfo").getString("uid"));
+                //回复弹幕的Id
+                if(jobct.getBoolean("isReply")){
+                    be.setBarrage_replay_id(jobct.getJSONObject("replyContent").getString("rContentId"));
+                }else{
+                    be.setBarrage_replay_id(null);
+                }
+                //剧集
                 be.setTv_show_vidio_no(subVideoTaskBean.getPd());
-                //TODO 查询tvshowid
-                be.setTv_show_id(11);
+                //tvshowid
+                be.setTv_show_id(subVideoTaskBean.getTv_id());
 
                 barrageList.add(be);
             }
@@ -274,7 +298,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 html = result.getContent();
                 logger.info("===========end download IqiyiPage process===========");
                 /** 解析页面 */
-                return analysisPageCatureParam(html);
+                return iqiyiElementEntity = analysisPageCatureParam(html);
             }
         }
         return iqiyiElementEntity;

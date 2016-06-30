@@ -12,8 +12,8 @@ public class CommentFetchHandle {
 	public void handle(SubVideoTaskBean subVideo, VideoCommentsBean comment) {
 		VideoTaskMapper.insertComments(subVideo, comment);
 	}
-
-	public void handle(SubVideoTaskBean subVideo, List<BarrageEntity> barrageList) {
-		VideoTaskMapper.insertBarrages(subVideo, barrageList);
+	/** 插入弹幕数据 */
+	public int handle(SubVideoTaskBean subVideo, List<BarrageEntity> barrageList) {
+		return VideoTaskMapper.insertBarrages(subVideo, barrageList);
 	}
 }

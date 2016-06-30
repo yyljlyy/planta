@@ -14,8 +14,8 @@ public class BarrageEntity implements Serializable {
     private int tv_show_id;
     /** 视频编号 */
     private int tv_show_vidio_no;
-    /** 视频网站分类：1，爱奇艺；2，乐视；3，优酷；4，腾讯；5，芒果；6，搜狐；*/
-    private int barrage_site;
+    /** 视频网站分类：0: tengxun; 1: youtu; 2: aqiyi; 3: letv; 4: sohu；*/
+    private int barrage_platform;
     /** 视频平台域名*/
     private String barrage_site_domain;
     /** 视频平台名称描述*/
@@ -61,12 +61,12 @@ public class BarrageEntity implements Serializable {
         this.tv_show_vidio_no = tv_show_vidio_no;
     }
 
-    public int getBarrage_site() {
-        return barrage_site;
+    public int getBarrage_platform() {
+        return barrage_platform;
     }
 
-    public void setBarrage_site(int barrage_site) {
-        this.barrage_site = barrage_site;
+    public void setBarrage_platform(int barrage_platform) {
+        this.barrage_platform = barrage_platform;
     }
 
     public String getBarrage_site_domain() {
