@@ -1,6 +1,7 @@
 package com.metal.fetcher.mapper;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -206,12 +207,19 @@ public class VideoTaskMapper {
 					count = count + qr.update(conn, BarrageSQL.INSERT_BARRAGE,subVideo.getVid(),subVideo.getSub_vid(), barrageEntity.getTv_show_id(),barrageEntity.getTv_show_vidio_no(),barrageEntity.getBarrage_platform(),barrageEntity.getBarrage_site_domain(),barrageEntity.getBarrage_site_description(),
 							barrageEntity.getBarrage_id(),barrageEntity.getBarrage_content(),barrageEntity.getBarrage_show_time(),barrageEntity.getBarrage_user_uuid(),
 							barrageEntity.getBarrage_user_name(),barrageEntity.getBarrage_is_replay(),barrageEntity.getBarrage_replay_id(),barrageEntity.getCreate_time());
+					/** 如果插入一万条，提交事务 */
+					if(count % 10000 == 0){
+						conn.commit();
+					}
+
 				}catch (SQLException se){
 					continue;
 				}
 			}
+
+			log.info(subVideo.getTitle(),"第["+subVideo.getPd()+"]集；一共插入【"+count+"】条");
 			conn.commit();
-			conn.setAutoCommit(true);
+//			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

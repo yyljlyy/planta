@@ -159,7 +159,10 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 logger.info("===========解压耗费时常：【"+(endZilb-sartZlib)+"】============");
 
                 /** 特殊字符处理，dom4j并不是很强大啊。。。 */
-                xmlStr = xmlStr.replace("&#20;","");
+                xmlStr = xmlStr.replaceAll("&#20;","").replaceAll("&#0;","").replaceAll("&#1;","").replaceAll("&#2;","").replaceAll("&#3;","").replaceAll("&#4;","").replaceAll("&#5;","").replaceAll("&#6;","")
+                        .replaceAll("&#7;","").replaceAll("&#8;","").replaceAll("&#9;","").replaceAll("&#10;","").replaceAll("&#11;","").replaceAll("&#12;","").replaceAll("&#13;","").replaceAll("&#14;","")
+                        .replaceAll("&#15;","").replaceAll("&#16;","").replaceAll("&#17;","").replaceAll("&#18;","").replaceAll("&#19;","").replaceAll("&#20;","").replaceAll("&#21;","").replaceAll("&#22;","")
+                        .replaceAll("&#23;","").replaceAll("&#24;","").replaceAll("&#25;","").replaceAll("&#26;","");
 
                 /** 解析xml */
                 Document document = null;
