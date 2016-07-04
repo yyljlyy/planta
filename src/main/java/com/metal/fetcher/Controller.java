@@ -13,6 +13,8 @@ import com.metal.work.impl.TaskWorkImpl;
 import com.metal.work.impl.VideoFetcherWorkImpl;
 import com.metal.work.impl.VideoTaskWorkImpl;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -20,34 +22,35 @@ public class Controller {
 	
 	private static Logger log = LoggerFactory.getLogger(Controller.class);
 	
-	private static boolean VIDEO_TASK_RUN = true;// Config.getBooleanProperty("video_task_run");
-	private static boolean VIDEO_SUB_TASK_RUN = true;//Config.getBooleanProperty("video_sub_task_run");
-	private static boolean TASK_RUN = true;//Config.getBooleanProperty("task_run");
-	private static boolean SUB_TASK_RUN = true;//Config.getBooleanProperty("sub_task_run");
+	private static boolean VIDEO_TASK_RUN = Config.getBooleanProperty("video_task_run");
+	private static boolean VIDEO_SUB_TASK_RUN = Config.getBooleanProperty("video_sub_task_run");
+	private static boolean TASK_RUN = Config.getBooleanProperty("task_run");
+	private static boolean SUB_TASK_RUN = Config.getBooleanProperty("sub_task_run");
 	
-	private static String VIDEO_TASK_SCHEDULE = "0 * * * * ?";//Config.getProperty("video_task_schedule");
-	private static String VIDEO_SUB_TASK_SCHEDULE = "0 */1 * * * ?";//Config.getProperty("video_sub_task_schedule");
-	private static String TASK_SCHEDULE = "0 * * * * ?";//Config.getProperty("task_schedule");
-	private static String SUB_TASK_SCHEDULE = "0 */5 * * * ?";//Config.getProperty("sub_task_schedule");
+	private static String VIDEO_TASK_SCHEDULE = Config.getProperty("video_task_schedule");
+	private static String VIDEO_SUB_TASK_SCHEDULE = Config.getProperty("video_sub_task_schedule");
+	private static String TASK_SCHEDULE = Config.getProperty("task_schedule");
+	private static String SUB_TASK_SCHEDULE = Config.getProperty("sub_task_schedule");
 	
-	private static String VIDEO_CHECK_RESET_SCHEDULE = "0 */5 * * * ?";//Config.getProperty("video_check_reset_schedule");
+	private static String VIDEO_CHECK_RESET_SCHEDULE = Config.getProperty("video_check_reset_schedule");
 	
-	private static String TASK_CHECK_RESET_SCHEDULE = "0 */5 * * * ?";//Config.getProperty("task_check_reset_schedule");
+	private static String TASK_CHECK_RESET_SCHEDULE = Config.getProperty("task_check_reset_schedule");
 	
 	public static void main(String[] args) {
 		start();
 	}
 	
 	private static void start() {
-		/*if(VIDEO_TASK_RUN) {
+
+		if(VIDEO_TASK_RUN) {
 			log.info("video task work: " + VIDEO_TASK_SCHEDULE);
 			QuartzManager.addJob("video-task-work", VideoTaskWorkImpl.class, VIDEO_TASK_SCHEDULE);
-		}*/
+		}
 		if(VIDEO_SUB_TASK_RUN) {
 			log.info("video fetcher work: " + VIDEO_SUB_TASK_SCHEDULE);
 			QuartzManager.addJob("video-fetcher-work", VideoFetcherWorkImpl.class, VIDEO_SUB_TASK_SCHEDULE);
 		}
-		/*if(TASK_RUN) {
+		if(TASK_RUN) {
 			log.info("task work: " + TASK_SCHEDULE);
 			QuartzManager.addJob("task-work", TaskWorkImpl.class, TASK_SCHEDULE);
 		}
@@ -63,6 +66,6 @@ public class Controller {
 		if(StringUtils.isNotBlank(TASK_CHECK_RESET_SCHEDULE)) {
 			log.info("check-and-reset-task: " + TASK_CHECK_RESET_SCHEDULE);
 			QuartzManager.addJob("check-and-reset-task", ResetTaskImpl.class, TASK_CHECK_RESET_SCHEDULE);
-		}*/
+		}
 	}
 }

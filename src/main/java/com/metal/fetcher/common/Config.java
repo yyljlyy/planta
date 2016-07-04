@@ -1,5 +1,6 @@
 package com.metal.fetcher.common;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -36,11 +37,13 @@ public class Config {
 		loadDefaultConfig(p);
 		return p;
 	}
-	private static final String defaultConfigFile = "load.properties";
+	private static final String defaultConfigFile = "C:/PhilWork/phil workspace/planta/src/main/resources/load.properties";
 	private static void loadDefaultConfig(final Properties props) {
-		InputStream input = null;
+//		InputStream input = null;
+		FileInputStream input = null;
 		try {
-			input = Config.class.getClassLoader().getResourceAsStream(defaultConfigFile);
+//			input = Config.class.getClassLoader().getResourceAsStream(defaultConfigFile);
+			input = new FileInputStream("C:/PhilWork/phil workspace/planta/src/main/resources/load.properties");
 		} catch (Exception e) {
 			log.error("config file read failed. ", e);
 			System.exit(1);

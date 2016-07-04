@@ -126,14 +126,14 @@ public class VideoTaskMapper {
 	}
 	
 	public static void insertComments(SubVideoTaskBean subVideo, VideoCommentsBean comment) {
-		log.debug("insert comment. subVideo: " + subVideo.getTitle() + "; comment: " + comment.getContent() + "; user name: " + comment.getUser_name());
+//		log.debug("insert comment. subVideo: " + subVideo.getTitle() + "; comment: " + comment.getContent() + "; user name: " + comment.getUser_name());
 		DBUtils.update(COMMENTS_INSERT_SQL, subVideo.getPlatform() + "-" + comment.getComment_id(), 
 				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name().getBytes(), comment.getPublish_time(),
 				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
 	}
 	
 	public static void insertComments(VideoTaskBean video, VideoCommentsBean comment) {
-		log.debug("insert comment. video: " + video.getTitle() + "; comment: " + comment.getContent() + "; user name: " + comment.getUser_name());
+//		log.debug("insert comment. video: " + video.getTitle() + "; comment: " + comment.getContent() + "; user name: " + comment.getUser_name());
 		DBUtils.update(COMMENTS_INSERT_SQL, video.getPlatform() + "-" + comment.getComment_id(), 
 				comment.getVid(), comment.getSubVid(), comment.getUser_id(), comment.getUser_name().getBytes(), comment.getPublish_time(),
 				comment.getUp_count(), comment.getDown_count(), comment.getRe_count(), comment.getType(), comment.getContent().getBytes());
@@ -202,9 +202,13 @@ public class VideoTaskMapper {
 			conn.setAutoCommit(false);
 			QueryRunner qr = new QueryRunner();
 			for(BarrageEntity barrageEntity : barrageList) {
-				count = count + qr.update(conn, BarrageSQL.INSERT_BARRAGE, barrageEntity.getTv_show_id(),barrageEntity.getTv_show_vidio_no(),barrageEntity.getBarrage_platform(),barrageEntity.getBarrage_site_domain(),barrageEntity.getBarrage_site_description(),
-						barrageEntity.getBarrage_id(),barrageEntity.getBarrage_content(),barrageEntity.getBarrage_show_time(),barrageEntity.getBarrage_user_uuid(),
-						barrageEntity.getBarrage_user_name(),barrageEntity.getBarrage_is_replay(),barrageEntity.getBarrage_replay_id(),barrageEntity.getCreate_time());
+				try{
+					count = count + qr.update(conn, BarrageSQL.INSERT_BARRAGE,subVideo.getVid(),subVideo.getSub_vid(), barrageEntity.getTv_show_id(),barrageEntity.getTv_show_vidio_no(),barrageEntity.getBarrage_platform(),barrageEntity.getBarrage_site_domain(),barrageEntity.getBarrage_site_description(),
+							barrageEntity.getBarrage_id(),barrageEntity.getBarrage_content(),barrageEntity.getBarrage_show_time(),barrageEntity.getBarrage_user_uuid(),
+							barrageEntity.getBarrage_user_name(),barrageEntity.getBarrage_is_replay(),barrageEntity.getBarrage_replay_id(),barrageEntity.getCreate_time());
+				}catch (SQLException se){
+					continue;
+				}
 			}
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -217,10 +221,10 @@ public class VideoTaskMapper {
 	}
 
 	/** 查询弹幕任务，根据弹幕抓取状态 */
-	@Async
 	public static List<SubVideoTaskBean> getInitSubTasks(String barrageStatus,int limit) {
 		Connection conn = null;
 		List<SubVideoTaskBean> beans = null;
+		int fail_count = 0;
 		try {
 			conn = DBHelper.getInstance().getConnection();
 			conn.setAutoCommit(false);
@@ -228,8 +232,13 @@ public class VideoTaskMapper {
 			//查询弹幕初始化任务，条数为5
 			beans = qr.query(conn, SubTaskSQL.QUERY_SUBTASK_BY_BARRAGE_STAUTUS, new BeanListHandler<SubVideoTaskBean>(SubVideoTaskBean.class), barrageStatus, limit);
 			for(SubVideoTaskBean bean : beans) {
-				//修改弹幕任务为正在运行
-				qr.update(conn, SubTaskSQL.EDIT_BARRAGE_STATUS, CodeEnum.BarrageStatusEnum.RUNNING.getCode(), bean.getSub_vid());
+				try{
+					//修改弹幕任务为正在运行
+					qr.update(conn, SubTaskSQL.EDIT_BARRAGE_STATUS, CodeEnum.BarrageStatusEnum.RUNNING.getCode(), bean.getSub_vid());
+				}catch (SQLException se){
+					fail_count++;
+					continue;
+				}
 			}
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -245,6 +254,9 @@ public class VideoTaskMapper {
 	public static void main(String[] args) {
 //		insertVideoTask("http://www.iqiyi.com/v_19rrlpmfn0.html?fc=87451bff3f7d2f4a#vfrm=2-3-0-1", Contants.PLATFORM_AQIYI, "最好的我们");
 		List<VideoTaskBean> list = queryInitTasks();
+
+
+		String a = "此山是我开，此片是我拍，要想看此片，必须要会员，\uD83D\uDE12";
 		System.out.println(list);
 	}
 

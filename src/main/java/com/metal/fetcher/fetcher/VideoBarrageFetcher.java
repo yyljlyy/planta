@@ -8,12 +8,12 @@ import com.metal.fetcher.model.SubVideoTaskBean;
  */
 public abstract class VideoBarrageFetcher implements Runnable {
 
-    protected SubVideoTaskBean subVideoTaskBean;
+    protected SubVideoTaskBean bean;
     //父类初始化，供子类使用
     protected CommentFetchHandle handle = new CommentFetchHandle();
 
     public VideoBarrageFetcher(SubVideoTaskBean bean) {
-        this.subVideoTaskBean = subVideoTaskBean;
+        this.bean = bean;
     }
 
     /**

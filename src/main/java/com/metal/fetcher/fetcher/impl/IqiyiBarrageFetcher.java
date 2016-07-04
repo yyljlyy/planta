@@ -1,7 +1,5 @@
 package com.metal.fetcher.fetcher.impl;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.metal.fetcher.common.CodeEnum;
 import com.metal.fetcher.fetcher.VideoBarrageFetcher;
 import com.metal.fetcher.mapper.VideoTaskMapper;
@@ -11,21 +9,33 @@ import com.metal.fetcher.model.SubVideoTaskBean;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
 import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
+import nu.xom.ParsingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXParseException;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.MissingFormatArgumentException;
 import java.util.zip.InflaterInputStream;
+import java.util.zip.ZipException;
 
 /**
  * @Description 爱奇艺抓抓取弹幕，结果变形处理
@@ -35,16 +45,12 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
 
     private static Logger logger = LoggerFactory.getLogger(IqiyiBarrageFetcher.class);
 
-    public IqiyiBarrageFetcher(SubVideoTaskBean subVideoTaskBean) {
-        super(subVideoTaskBean);
+    public IqiyiBarrageFetcher(SubVideoTaskBean bean) {
+        super(bean);
     }
 
-    /** 模拟任务入口url */
-    private final static String ENTER_URL = "http://www.iqiyi.com/v_19rrlfuf9w.html";//好先生
     /** 下载弹幕前缀路径 */
-    private static StringBuffer BARRAGE_DOWNLOAD_URL = new StringBuffer("http://cmts.iqiyi.com/bullet/");
-    /** 视频默认集数 */
-    private static Integer VIDEO_COUNT = 40;
+    private final static String BARRAGE_DOWNLOAD_URL = "http://cmts.iqiyi.com/bullet/";
     /** 截取字符串开始 */
     private static final String PAGE_INFO_PREFIX = "Q.PageInfo.playPageInfo =";
     /** 页面参数实体 */
@@ -60,6 +66,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
     private float rn = 0.2218056977726519f;
     private int rows = 300;
 
+    SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
      * @Description 抓取弹幕任务执行逻辑
      *  1:通过url下载页面，取得爱奇艺参数；
@@ -73,34 +80,30 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      */
     @Override
     public void fetch() {
-        logger.info("=========== begin Iqiyi capture barrage process，url:["+subVideoTaskBean.getPage_url()+"]===========");
+        logger.info("=========== begin Iqiyi capture barrage process，url:["+bean.getPage_url()+"]===========");
 
         /** 1.下载页面，抓取参数 */
-        captureParamOfIqiyi(subVideoTaskBean.getPage_url());
+        captureParamOfIqiyi(bean.getPage_url());
         if(null == iqiyiElementEntity){
-            logger.warn("=======download page fail,url:["+subVideoTaskBean.getPage_url()+"]========");
+            logger.warn("=======download page fail,url:["+bean.getPage_url()+"]========");
             return;
         } else {
-            logger.info("===download page sucess === element :"+ JSONObject.toJSONString(iqiyiElementEntity));
+            logger.info("===download page sucess === element :"+ com.alibaba.fastjson.JSONObject.toJSONString(iqiyiElementEntity));
         }
         /** 2.拼装下载弹幕的url */
         String barrageDownloadUrl = transformationDownBarrageUrl(BARRAGE_DOWNLOAD_URL);
         /** 3.下载弹幕，并解析为标准格式 */
-        try{
-            analysisBarrage(barrageDownloadUrl);
-        }catch (Exception e){
-            //TODO
-        }
+        analysisBarrage(barrageDownloadUrl);
         /** 4.db */
         int count = 0;
         if(!barrageList.isEmpty() && barrageList.size()>0){
-            count = handle.handle(subVideoTaskBean,barrageList);
+            count = handle.handle(bean,barrageList);
         }else{
             logger.warn("========= no barrage =========");
         }
         //任务完成
         if(count > 0){
-            VideoTaskMapper.barrageSubTaskFinish(subVideoTaskBean);
+            VideoTaskMapper.barrageSubTaskFinish(bean);
         }
         logger.info("=========== end Iqiyi capture barrage process===========");
         //提醒回收
@@ -111,7 +114,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      * @Description 下载弹幕，解压弹幕包，解析弹幕，注意异常处理
      * @param barrageDownloadUrl
      */
-    private void analysisBarrage(String barrageDownloadUrl) throws Exception{
+    private void analysisBarrage(String barrageDownloadUrl){
 
         DefaultHttpClient httpClient = new DefaultHttpClient();
         JSONArray finalArrayJson = new JSONArray();//最终的json集合
@@ -133,15 +136,17 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 HttpResponse httpResponse = httpClient.execute(httpGet);
                 HttpEntity entity = httpResponse.getEntity();
                 in = entity.getContent();
-
                 long sartZlib = System.currentTimeMillis();
                 byte[] bytes = null;
                 try {
                     //zlib解压
                     bytes = decompress(in);
+                }catch (ZipException ze){
+                    ze.printStackTrace();
+                logger.info("======decompress barrageZip exception,iqiyi return timeOut,url:["+temp_str+"]=====");
+                    break;
                 }catch (Exception e1){
                     e1.printStackTrace();
-                    //TODO
                 }
 
                 if(null == bytes){
@@ -153,26 +158,48 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 logger.info("=============解压后字符长度:["+xmlStr.length()+"]================");
                 logger.info("===========解压耗费时常：【"+(endZilb-sartZlib)+"】============");
 
-                long sartSny = System.currentTimeMillis();
-                //xml 解析 json串
-                JSONObject obj = new JSONObject();
-                XMLSerializer xmlSerializer = new XMLSerializer();
-                JSON json = xmlSerializer.read(xmlStr);
-                logger.info(json.toString());
-                long endSyn = System.currentTimeMillis();
-                logger.info("===========xml转json耗费时常：【"+(endZilb-sartZlib)+"】============");
+                /** 特殊字符处理，dom4j并不是很强大啊。。。 */
+                xmlStr = xmlStr.replace("&#20;","");
 
-                JSONObject jsonObject = (JSONObject) xmlSerializer.read(xmlStr);
-                JSONArray jsonArray = jsonObject.getJSONArray("data");
-                if(jsonArray.isEmpty() || jsonArray.size() == 0){
+                /** 解析xml */
+                Document document = null;
+                try{
+                    document = DocumentHelper.parseText(xmlStr);
+                }catch (DocumentException de){
+                    logger.warn("无法解析这个xml,xml;["+xmlStr+"]");
+                    de.printStackTrace();
+                    pageSize++;
+                    httpGet.reset();
+                    continue;
+                }
+                //获取根节点
+                Element root = document.getRootElement();
+                Element elist = root.element("data");
+                List<Element> eAll = elist.elements();
+                if( eAll.isEmpty() || eAll.size() == 0){
+                    logger.info("===========已经遍历到弹幕最大深度============");
                     break;
                 }
-                int item = 0;
-                for (Object o :jsonArray) {
-                    JSONObject json_obj =  (JSONObject)o;
-                    JSONArray joa = json_obj.getJSONArray("list");
-                    for (Object ob : joa){
-                        JSONObject jobj = (JSONObject) ob;
+                for (Element et : eAll) {
+                    List<Element> list = et.element("list").elements();
+                    for (Element e : list){
+                        JSONObject jobj = new JSONObject();
+                        jobj.put("contentId",e.element("contentId").getTextTrim());
+                        jobj.put("isReply",e.element("isReply").getTextTrim());
+                        jobj.put("content",e.element("content").getTextTrim());
+                        jobj.put("showTime",e.element("showTime").getTextTrim());
+
+                        Element _e = e.element("userInfo");
+                        try {
+                            jobj.put("uuid",_e.element("uid").getTextTrim());
+                        }catch (NullPointerException ne){
+                            jobj.put("uuid",_e.element("udid").getTextTrim());
+                        }
+                        jobj.put("name",_e.element("name").getTextTrim());
+                        //回复人
+                        if(jobj.getBoolean("isReply")){
+                            jobj.put("rContentId",e.element("replyContent").element("rContentId").getTextTrim());
+                        }
                         finalArrayJson.add(jobj);
                     }
                 }
@@ -187,38 +214,26 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 be.setBarrage_id(jobct.getString("contentId"));
                 be.setBarrage_is_replay(jobct.getBoolean("isReply")?1:0);
                 be.setBarrage_content(jobct.getString("content"));
-                be.setBarrage_replay_id(jobct.getString("contentId"));
                 be.setBarrage_show_time(jobct.getString("showTime"));
                 be.setBarrage_platform(CodeEnum.PlatformEnum.I_QIYI.getCode());
-                be.setBarrage_site_description(subVideoTaskBean.getTitle());
-                be.setBarrage_site_domain(subVideoTaskBean.getPage_url());
-                be.setCreate_time(new Date());
-                try{
-                    if(null != jobct.getJSONObject("userInfo").getString("uid") && "" != jobct.getJSONObject("userInfo").getString("uid")){
-
-                    }else{
-                        be.setBarrage_user_uuid(jobct.getJSONObject("userInfo").getString("udid"));//匿名用户
-                    }
-                }catch (Exception e){
-                    be.setBarrage_user_uuid(jobct.getJSONObject("userInfo").getString("udid"));
-                }
-                be.setBarrage_user_name(jobct.getJSONObject("userInfo").getString("name"));
-                //回复弹幕的Id
+                be.setBarrage_site_description(bean.getTitle());
+                be.setBarrage_site_domain(bean.getPage_url());
+                be.setBarrage_user_uuid(jobct.getString("uuid"));
+                be.setBarrage_user_name(jobct.getString("name"));
                 if(jobct.getBoolean("isReply")){
-                    be.setBarrage_replay_id(jobct.getJSONObject("replyContent").getString("rContentId"));
-                }else{
-                    be.setBarrage_replay_id(null);
+                    be.setBarrage_replay_id(jobct.getString("rContentId"));
                 }
+                be.setCreate_time(new Date());
                 //剧集
-                be.setTv_show_vidio_no(subVideoTaskBean.getPd());
+                be.setTv_show_vidio_no(bean.getPd());
                 //tvshowid
-                be.setTv_show_id(subVideoTaskBean.getTv_id());
+                be.setTv_show_id(bean.getTv_id());
 
                 barrageList.add(be);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new IOException("解析文件异常");
+//            throw new IOException("解析文件异常");
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
@@ -228,7 +243,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                throw  new IOException("关闭Io流异常");
+//                throw  new IOException("关闭Io流异常");
             }
         }
         long endTotal = System.currentTimeMillis();
@@ -253,17 +268,36 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 o.write(buf, 0, i);
             }
 
+        } catch (ZipException ze) {
+
+            StringBuffer   out   =   new   StringBuffer();
+            byte[]   b   =   new   byte[4096];
+            for   (int   n;   (n   =   is.read(b))   !=   -1;)   {
+                out.append(new   String(b,   0,   n));
+            }
+            logger.info("爱奇艺返回结果有误，或者是返回超时，跳过该弹幕的抓取!"+ze.getMessage());
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        } finally {
+            /*if(null != iis){
+                iis.close();
+            }
+            if(null != o){
+                o.close();
+            }*/
         }
         return o.toByteArray();
     }
     /**
      * @Description 组装下载弹幕的url
-     * @param barrageDownloadUrl
+     * @param stringUrl
      */
-    private String transformationDownBarrageUrl(StringBuffer barrageDownloadUrl) {
+    private String transformationDownBarrageUrl(String stringUrl) {
+
+        StringBuffer _barrageDownloadUrl = new StringBuffer(BARRAGE_DOWNLOAD_URL);
+
         temp_str = null;
         temp_str = vid.substring(vid.length()-4,vid.length());
 
@@ -271,15 +305,20 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
         url_tag_secont = temp_str.substring(2,4);
         //TODO rn 是随机数
         //拼装url
-        barrageDownloadUrl.append(url_tag_first)
+        _barrageDownloadUrl.append(url_tag_first)
                 .append("/").append(url_tag_secont)
                 .append("/").append(vid).append("_").append(rows).append("_").append(pageSize_variate).append(".z")
                 .append("?rn=").append(rn)
                 .append("&business=").append(business)
-                .append("&");
+                .append("&is_iqiyi=").append(is_iqiyi)
+                .append("&is_video_page=").append(is_video_page)
+                .append("&tvid=").append(vid)
+                .append("&albumid=").append(albumId)
+                .append("&categoryid=").append(cid)
+                .append("&qypid=").append(qypid);
 
         temp_str = null;
-        return barrageDownloadUrl.toString();
+        return _barrageDownloadUrl.toString();
     }
 
     /**
@@ -290,7 +329,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      */
     private IqiyiElementEntity captureParamOfIqiyi(String enter_url) {
         logger.info("===========begin download IqiyiPage process===========");
-        if(null != iqiyiElementEntity){
+        if(null == iqiyiElementEntity){
             logger.info("========== url : ["+enter_url+"]===========");
             /** 下载页面 */
             HttpResult result = HttpHelper.getInstance().httpGet(enter_url);
@@ -339,7 +378,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
             return new IqiyiElementEntity();
         }
         //频道id和专辑Id
-        JSONObject jsonResultObject = JSONObject.parseObject(html);
+        com.alibaba.fastjson.JSONObject jsonResultObject = com.alibaba.fastjson.JSONObject.parseObject(html);
         vid = jsonResultObject.getString("tvId");
         albumId = jsonResultObject.getString("albumId");
         cid = jsonResultObject.getString("cid");
