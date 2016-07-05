@@ -65,7 +65,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
     private boolean is_iqiyi = true,is_video_page = true;
     private float rn = 0.2218056977726519f;
     private int rows = 300;
-
+    private int failFlag = 0;//失败次数
     SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
      * @Description 抓取弹幕任务执行逻辑
@@ -140,10 +140,27 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 byte[] bytes = null;
                 try {
                     //zlib解压
-                    bytes = decompress(in);
+//                    bytes = decompress(in);
+                    throw new ZipException();
                 }catch (ZipException ze){
                     ze.printStackTrace();
-                logger.info("======decompress barrageZip exception,iqiyi return timeOut,url:["+temp_str+"]=====");
+                    logger.info("======decompress barrageZip exception,iqiyi return timeOut,url:["+temp_str+"]=====");
+                    /**
+                     * 失败任务逻辑处理(采用方案二)
+                     * 方案一：
+                     * 1；如果抓取第一页，任务就已经失败
+                     * 2；任务还原状态为“初始化”，定时会自动再次抓取（暂时的方案）
+                     * 方案二：
+                     * 再次抓取任务，如果失败次数大于三次，修改任务为失败状态
+                     */
+                    if(1==pageSize && failFlag<3){
+                        failFlag++;
+                        Thread.sleep(500);
+                        analysisBarrage(barrageDownloadUrl);
+                    }else if (1==pageSize && failFlag>=3){
+                        //结果返回异常结束
+                        VideoTaskMapper.editSubVideoTaskBarrageStatus(CodeEnum.BarrageStatusEnum.END_EXCEPTION.getCode(),bean.getSub_vid());
+                    }
                     break;
                 }catch (Exception e1){
                     e1.printStackTrace();
@@ -159,10 +176,13 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 logger.info("===========解压耗费时常：【"+(endZilb-sartZlib)+"】============");
 
                 /** 特殊字符处理，dom4j并不是很强大啊。。。 */
-                xmlStr = xmlStr.replaceAll("&#20;","").replaceAll("&#0;","").replaceAll("&#1;","").replaceAll("&#2;","").replaceAll("&#3;","").replaceAll("&#4;","").replaceAll("&#5;","").replaceAll("&#6;","")
+                /*xmlStr = xmlStr.replaceAll("&#20;","").replaceAll("&#0;","").replaceAll("&#1;","").replaceAll("&#2;","").replaceAll("&#3;","").replaceAll("&#4;","").replaceAll("&#5;","").replaceAll("&#6;","")
                         .replaceAll("&#7;","").replaceAll("&#8;","").replaceAll("&#9;","").replaceAll("&#10;","").replaceAll("&#11;","").replaceAll("&#12;","").replaceAll("&#13;","").replaceAll("&#14;","")
                         .replaceAll("&#15;","").replaceAll("&#16;","").replaceAll("&#17;","").replaceAll("&#18;","").replaceAll("&#19;","").replaceAll("&#20;","").replaceAll("&#21;","").replaceAll("&#22;","")
-                        .replaceAll("&#23;","").replaceAll("&#24;","").replaceAll("&#25;","").replaceAll("&#26;","");
+                        .replaceAll("&#23;","").replaceAll("&#24;","").replaceAll("&#25;","").replaceAll("&#26;","");*/
+                //过滤表情字符
+                String reg = "&#\\d+;";
+                xmlStr = xmlStr.replaceAll("&#20;","").replace(reg,"");
 
                 /** 解析xml */
                 Document document = null;
@@ -234,6 +254,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
 
                 barrageList.add(be);
             }
+            logger.info(bean.getTitle()+",第["+bean.getPd()+"]集弹幕一共：["+barrageList.size()+"]条！url:["+bean.getPage_url()+"]");
         } catch (IOException e) {
             e.printStackTrace();
 //            throw new IOException("解析文件异常");
@@ -270,7 +291,6 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
             while ((i = iis.read(buf, 0, i)) > 0) {
                 o.write(buf, 0, i);
             }
-
         } catch (ZipException ze) {
 
             StringBuffer   out   =   new   StringBuffer();

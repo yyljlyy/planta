@@ -37,20 +37,18 @@ public class Config {
 		loadDefaultConfig(p);
 		return p;
 	}
-	private static final String defaultConfigFile = "C:/PhilWork/phil workspace/planta/src/main/resources/load.properties";
 	private static void loadDefaultConfig(final Properties props) {
-//		InputStream input = null;
-		FileInputStream input = null;
+		InputStream input = null;
+//		FileInputStream input = null;
 		try {
-//			input = Config.class.getClassLoader().getResourceAsStream(defaultConfigFile);
-			input = new FileInputStream("C:/PhilWork/phil workspace/planta/src/main/resources/load.properties");
+			input = Config.class.getClassLoader().getResourceAsStream("load.properties");
+//			input = new FileInputStream("C:/PhilWork/phil workspace/planta/src/main/resources/load.properties");
 		} catch (Exception e) {
 			log.error("config file read failed. ", e);
 			System.exit(1);
 		}
 		if (input == null) {
-			log.error("default Config File not found: "
-					+ defaultConfigFile);
+			log.error("default Config File not found: load.properties");
 			System.exit(1);
 		}
 		try {

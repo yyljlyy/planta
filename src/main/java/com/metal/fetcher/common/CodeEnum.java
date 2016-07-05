@@ -10,18 +10,18 @@ public class CodeEnum {
      * 弹幕任务状态
      */
     public enum BarrageStatusEnum{
-        INITIAL("0","初始化"),
-        RUNNING("1","运行中"),
-        FINISH("2","任务完成"),
-        END_SELF("-1","手动结束"),
-        END_EXCEPTION("-2","异常结束");
-        private String code;
+        INITIAL(0,"初始化"),
+        RUNNING(1,"运行中"),
+        FINISH(2,"任务完成"),
+        END_SELF(-1,"手动结束"),
+        END_EXCEPTION(-2,"异常结束");
+        private int code;
         private String message;
-        private BarrageStatusEnum(String code,String message){
+        private BarrageStatusEnum(int code,String message){
             this.code = code;
             this.message = message;
         }
-        public String getCode(){
+        public int getCode(){
             return code;
         }
         public String getMessage(){

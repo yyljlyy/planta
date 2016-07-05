@@ -22,7 +22,7 @@ public class VideoFetcherWorkImpl implements Job {
 	
 	private static Logger log = LoggerFactory.getLogger(VideoFetcherWorkImpl.class);
 
-	private static int SUB_TASK_COUNT = 5;//Config.getIntProperty("video_sub_task_count");
+	private static int SUB_TASK_COUNT = Config.getIntProperty("video_sub_task_count");
 	
 	public static void main(String[] args) {
 		try {
@@ -42,13 +42,13 @@ public class VideoFetcherWorkImpl implements Job {
 		 * */
 
 		//查询有没有需要执行抓取【评论】的任务
-		List<SubVideoTaskBean> subVideoList =  null;//VideoTaskMapper.getInitSubTasks(SUB_TASK_COUNT);
+		List<SubVideoTaskBean> subVideoList = VideoTaskMapper.getInitSubTasks(SUB_TASK_COUNT);
 		//查询有没有需要执行抓取【弹幕】的任务
 		List<SubVideoTaskBean> barrage_SubVideoList =  VideoTaskMapper.getInitSubTasks(CodeEnum.BarrageStatusEnum.INITIAL.getCode(),SUB_TASK_COUNT);
 		if(subVideoList == null) {
-//			return;
+			return;
 		}
-		/*for(SubVideoTaskBean bean : subVideoList) {
+		for(SubVideoTaskBean bean : subVideoList) {
 			VideoCommentFetcher fetcher = null;
 			switch(bean.getPlatform()) {
 			case Constants.VIDEO_PLATFORM_TENGXUN:
@@ -73,7 +73,7 @@ public class VideoFetcherWorkImpl implements Job {
 				// submit thread
 				MyThreadPool.getInstance().submit(fetcher);
 			}
-		}*/
+		}
 		/** 弹幕任务抓取 */
 		for(SubVideoTaskBean bean : barrage_SubVideoList) {
 			VideoBarrageFetcher barrage_fetcher = null;

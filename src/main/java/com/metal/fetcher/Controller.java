@@ -42,15 +42,15 @@ public class Controller {
 	
 	private static void start() {
 
-		/*if(VIDEO_TASK_RUN) {
+		if(VIDEO_TASK_RUN) {
 			log.info("video task work: " + VIDEO_TASK_SCHEDULE);
 			QuartzManager.addJob("video-task-work", VideoTaskWorkImpl.class, VIDEO_TASK_SCHEDULE);
-		}*/
+		}
 		if(VIDEO_SUB_TASK_RUN) {
 			log.info("video fetcher work: " + VIDEO_SUB_TASK_SCHEDULE);
 			QuartzManager.addJob("video-fetcher-work", VideoFetcherWorkImpl.class, VIDEO_SUB_TASK_SCHEDULE);
 		}
-		/*if(TASK_RUN) {
+		if(TASK_RUN) {
 			log.info("task work: " + TASK_SCHEDULE);
 			QuartzManager.addJob("task-work", TaskWorkImpl.class, TASK_SCHEDULE);
 		}
@@ -66,6 +66,6 @@ public class Controller {
 		if(StringUtils.isNotBlank(TASK_CHECK_RESET_SCHEDULE)) {
 			log.info("check-and-reset-task: " + TASK_CHECK_RESET_SCHEDULE);
 			QuartzManager.addJob("check-and-reset-task", ResetTaskImpl.class, TASK_CHECK_RESET_SCHEDULE);
-		}*/
+		}
 	}
 }

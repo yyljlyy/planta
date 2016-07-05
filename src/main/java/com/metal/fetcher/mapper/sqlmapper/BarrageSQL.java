@@ -7,6 +7,6 @@ package com.metal.fetcher.mapper.sqlmapper;
 public class BarrageSQL {
 
     /** 插入弹幕表 */
-    public final static String INSERT_BARRAGE = "INSERT INTO tv_barrage (v_task_id,v_sub_task_id,tv_show_id, tv_show_vidio_no, barrage_platform, barrage_site_domain, barrage_site_description, barrage_id, barrage_content, barrage_show_time, barrage_user_uuid, barrage_user_name, barrage_is_replay, barrage_replay_id, create_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    public final static String INSERT_BARRAGE = "INSERT ignore INTO tv_barrage (v_task_id,v_sub_task_id,tv_show_id, tv_show_vidio_no, barrage_platform, barrage_site_domain, barrage_site_description, barrage_id, barrage_content, barrage_show_time, barrage_user_uuid, barrage_user_name, barrage_is_replay, barrage_replay_id, create_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 }
