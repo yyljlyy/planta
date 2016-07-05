@@ -22,7 +22,6 @@ import com.metal.fetcher.model.VideoCommentsBean;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.utils.DBHelper;
 import com.metal.fetcher.utils.DBUtils;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 public class VideoTaskMapper {
 	
