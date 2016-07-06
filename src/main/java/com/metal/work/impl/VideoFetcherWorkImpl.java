@@ -92,6 +92,7 @@ public class VideoFetcherWorkImpl implements Job {
 					break;
 				case Constants.VIDEO_PLATFORM_LETV:
 					//乐视 弹幕任务
+					barrage_fetcher = new LeTvBarrageFetcher(bean);
 					break;
 				case Constants.VIDEO_PLATFORM_SOHU:
 					//搜狐 弹幕任务

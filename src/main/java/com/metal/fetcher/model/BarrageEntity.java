@@ -37,6 +37,23 @@ public class BarrageEntity implements Serializable {
     /** 创建时间*/
     private Date create_time;
 
+    public BarrageEntity() {
+
+    }
+
+    public BarrageEntity(int tv_show_id, int tv_show_vidio_no, int barrage_platform, String barrage_site_domain, String barrage_site_description, String barrage_id, String barrage_content, String barrage_show_time, String barrage_user_uuid, Date create_time) {
+        this.tv_show_id = tv_show_id;
+        this.tv_show_vidio_no = tv_show_vidio_no;
+        this.barrage_platform = barrage_platform;
+        this.barrage_site_domain = barrage_site_domain;
+        this.barrage_site_description = barrage_site_description;
+        this.barrage_id = barrage_id;
+        this.barrage_content = barrage_content;
+        this.barrage_show_time = barrage_show_time;
+        this.barrage_user_uuid = barrage_user_uuid;
+        this.create_time = create_time;
+    }
+
     public int getId() {
         return id;
     }

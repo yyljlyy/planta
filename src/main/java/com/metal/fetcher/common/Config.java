@@ -38,11 +38,11 @@ public class Config {
 		return p;
 	}
 	private static void loadDefaultConfig(final Properties props) {
-		InputStream input = null;
-//		FileInputStream input = null;
+//		InputStream input = null;
+		FileInputStream input = null;
 		try {
-			input = Config.class.getClassLoader().getResourceAsStream("load.properties");
-//			input = new FileInputStream("C:/PhilWork/phil workspace/planta/src/main/resources/load.properties");
+//			input = Config.class.getClassLoader().getResourceAsStream("load.properties");
+			input = new FileInputStream("C:/PhilWork/phil workspace/planta/src/main/resources/load.properties");
 		} catch (Exception e) {
 			log.error("config file read failed. ", e);
 			System.exit(1);

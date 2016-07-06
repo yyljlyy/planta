@@ -183,7 +183,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                         .replaceAll("&#23;","").replaceAll("&#24;","").replaceAll("&#25;","").replaceAll("&#26;","");*/
                 //过滤表情字符
                 String reg = "&#\\d+;";
-                xmlStr = xmlStr.replaceAll("&#20;","").replace(reg,"");
+                xmlStr = xmlStr.replaceAll(reg,"").replaceAll("&#20;","").replaceAll("&#","");
 
                 /** 解析xml */
                 Document document = null;
@@ -360,7 +360,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      * @return
      */
     private IqiyiElementEntity captureParamOfIqiyi(String enter_url) {
-        logger.info("===========begin download IqiyiPage process;url : [\"+enter_url+\"]===========");
+        logger.info("===========begin download IqiyiPage process;url : ["+enter_url+"]===========");
         HttpResult result = null;
         for(int i=0; i<DEFAULT_RETRY_COUNT;i++) {
             result = HttpHelper.getInstance().httpGet(enter_url);
