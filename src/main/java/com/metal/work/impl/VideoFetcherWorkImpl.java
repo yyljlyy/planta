@@ -45,9 +45,11 @@ public class VideoFetcherWorkImpl implements Job {
 		List<SubVideoTaskBean> subVideoList = VideoTaskMapper.getInitSubTasks(SUB_TASK_COUNT);
 		//查询有没有需要执行抓取【弹幕】的任务
 		List<SubVideoTaskBean> barrage_SubVideoList =  VideoTaskMapper.getInitSubTasks(CodeEnum.BarrageStatusEnum.INITIAL.getCode(),SUB_TASK_COUNT);
-		if(subVideoList == null) {
+		if((subVideoList.isEmpty() && barrage_SubVideoList.isEmpty()) || (subVideoList.size() <= 0 && barrage_SubVideoList.size() <= 0)) {
+			log.info("需要抓取的评论任务数:"+subVideoList+";需要抓取的弹幕任务数:"+barrage_SubVideoList);
 			return;
 		}
+		log.info("不为空;需要抓取的评论任务数:"+subVideoList+";需要抓取的弹幕任务数:"+barrage_SubVideoList);
 		for(SubVideoTaskBean bean : subVideoList) {
 			VideoCommentFetcher fetcher = null;
 			switch(bean.getPlatform()) {

@@ -366,7 +366,7 @@ public class HttpHelper {
             httpResult.setResponse(response);
             httpResult.setContext(httpContext);
 		} catch(Exception e) {
-			log.error("get failed.", e);
+			log.error("httpResult.getStatusCode() : ["+httpResult.getStatusCode()+"],get failed.", e);
 		} finally{
 			request.abort();
 			if(null != response){

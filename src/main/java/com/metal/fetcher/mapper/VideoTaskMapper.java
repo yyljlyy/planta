@@ -195,7 +195,6 @@ public class VideoTaskMapper {
 		int count =0;
 		int fail_count = 0;
 		Connection conn = null;
-		List<SubVideoTaskBean> beans = null;
 		try {
 			conn = DBHelper.getInstance().getConnection();
 			conn.setAutoCommit(false);

@@ -1,5 +1,7 @@
 package com.metal.fetcher.fetcher.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.metal.fetcher.common.CodeEnum;
 import com.metal.fetcher.fetcher.VideoBarrageFetcher;
 import com.metal.fetcher.mapper.VideoTaskMapper;
@@ -8,16 +10,10 @@ import com.metal.fetcher.model.IqiyiElementEntity;
 import com.metal.fetcher.model.SubVideoTaskBean;
 import com.metal.fetcher.utils.HttpHelper;
 import com.metal.fetcher.utils.HttpHelper.HttpResult;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
-import nu.xom.ParsingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.dom4j.Document;
@@ -26,14 +22,12 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXParseException;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.MissingFormatArgumentException;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipException;
 
@@ -54,7 +48,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
     /** 截取字符串开始 */
     private static final String PAGE_INFO_PREFIX = "Q.PageInfo.playPageInfo =";
     /** 页面参数实体 */
-    private IqiyiElementEntity iqiyiElementEntity = null;
+//    private IqiyiElementEntity iqiyiElementEntity = null;
     /** 扩展任务集合 */
     private List<BarrageEntity> barrageList = null;
     /** 页面字符串信息 */
@@ -66,6 +60,8 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
     private float rn = 0.2218056977726519f;
     private int rows = 300;
     private int failFlag = 0;//失败次数
+    /** 尝试请求次数 */
+    private static final int DEFAULT_RETRY_COUNT = 3;
     SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
      * @Description 抓取弹幕任务执行逻辑
@@ -83,7 +79,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
         logger.info("=========== begin Iqiyi capture barrage process，url:["+bean.getPage_url()+"]===========");
 
         /** 1.下载页面，抓取参数 */
-        captureParamOfIqiyi(bean.getPage_url());
+        IqiyiElementEntity iqiyiElementEntity = captureParamOfIqiyi(bean.getPage_url());
         if(null == iqiyiElementEntity){
             logger.warn("=======download page fail,url:["+bean.getPage_url()+"]========");
             return;
@@ -115,9 +111,15 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      * @param barrageDownloadUrl
      */
     private void analysisBarrage(String barrageDownloadUrl){
-
+        logger.info(" begin analysisBarrage process ,barrageDownloadUrl :["+barrageDownloadUrl+"]");
         DefaultHttpClient httpClient = new DefaultHttpClient();
-        JSONArray finalArrayJson = new JSONArray();//最终的json集合
+        CloseableHttpResponse httpResponse = null;
+        JSONArray finalArrayJson = null;//最终的json集合
+        try{
+            finalArrayJson = new JSONArray();
+        }catch (Exception e ){
+            e.printStackTrace();
+        }
         InputStream in = null;
         HttpGet httpGet = null;
         long startTotal = System.currentTimeMillis();
@@ -132,16 +134,15 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 logger.info("===========第 "+pageSize+"次抓取;url=["+temp_str+"]============");
 
                 httpGet = new HttpGet(temp_str);
-
-                HttpResponse httpResponse = httpClient.execute(httpGet);
+                httpResponse = httpClient.execute(httpGet);
+//                HttpResponse httpResponse = httpClient.execute(httpGet);
                 HttpEntity entity = httpResponse.getEntity();
                 in = entity.getContent();
                 long sartZlib = System.currentTimeMillis();
                 byte[] bytes = null;
                 try {
                     //zlib解压
-//                    bytes = decompress(in);
-                    throw new ZipException();
+                    bytes = decompress(in);
                 }catch (ZipException ze){
                     ze.printStackTrace();
                     logger.info("======decompress barrageZip exception,iqiyi return timeOut,url:["+temp_str+"]=====");
@@ -229,6 +230,13 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 pageSize++;
                 httpGet.reset();
             }
+
+            /*if( null != httpGet){
+                httpGet.reset();
+            }*/
+            if(null != httpResponse){
+                httpResponse.close();
+            }
             BarrageEntity be = null;
             barrageList = new ArrayList<BarrageEntity>(finalArrayJson.size());
             for (Object o : finalArrayJson){
@@ -304,10 +312,10 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
             e.printStackTrace();
             return null;
         } finally {
-            /*if(null != iis){
+            if(null != iis){
                 iis.close();
             }
-            if(null != o){
+            /*if(null != o){
                 o.close();
             }*/
         }
@@ -318,7 +326,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      * @param stringUrl
      */
     private String transformationDownBarrageUrl(String stringUrl) {
-
+        logger.info("begin config capture barrage url : ["+stringUrl+"]");
         StringBuffer _barrageDownloadUrl = new StringBuffer(BARRAGE_DOWNLOAD_URL);
 
         temp_str = null;
@@ -341,6 +349,7 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
                 .append("&qypid=").append(qypid);
 
         temp_str = null;
+        logger.info("end config capture barrage url :["+_barrageDownloadUrl.toString()+"]");
         return _barrageDownloadUrl.toString();
     }
 
@@ -351,19 +360,34 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
      * @return
      */
     private IqiyiElementEntity captureParamOfIqiyi(String enter_url) {
-        logger.info("===========begin download IqiyiPage process===========");
-        if(null == iqiyiElementEntity){
+        logger.info("===========begin download IqiyiPage process;url : [\"+enter_url+\"]===========");
+        HttpResult result = null;
+        for(int i=0; i<DEFAULT_RETRY_COUNT;i++) {
+            result = HttpHelper.getInstance().httpGet(enter_url);
+            if (result.getStatusCode() != HttpStatus.SC_OK) {
+                logger.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + enter_url);
+            } else {
+                html = result.getContent();
+                break;
+            }
+        }
+        IqiyiElementEntity iqiyiElementEntity_temp = analysisPageCatureParam(html);
+
+        logger.info("===========end download IqiyiPage process===========");
+        return iqiyiElementEntity_temp;
+
+        /*if(null == iqiyiElementEntity){
             logger.info("========== url : ["+enter_url+"]===========");
-            /** 下载页面 */
+            *//** 下载页面 *//*
             HttpResult result = HttpHelper.getInstance().httpGet(enter_url);
             if (result.getStatusCode() == HttpStatus.SC_OK) {
                 html = result.getContent();
                 logger.info("===========end download IqiyiPage process===========");
-                /** 解析页面 */
+                *//** 解析页面 *//*
                 return iqiyiElementEntity = analysisPageCatureParam(html);
             }
         }
-        return iqiyiElementEntity;
+        return iqiyiElementEntity;*/
     }
 
     /**
