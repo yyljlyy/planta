@@ -97,6 +97,10 @@ public class VideoFetcherWorkImpl implements Job {
 				case Constants.VIDEO_PLATFORM_SOHU:
 					//搜狐 弹幕任务
 					break;
+				case Constants.VIDEO_PLATFORM_BILIBILI:
+					//Bilibili 弹幕任务
+					barrage_fetcher = new BilibiliHistoryBarrageFetcher(bean);
+					break;
 				default:
 					log.error("plantform is not support: " + bean.getPlatform());
 			}

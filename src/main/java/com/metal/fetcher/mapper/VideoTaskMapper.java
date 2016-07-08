@@ -3,8 +3,8 @@ package com.metal.fetcher.mapper;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
 import com.metal.fetcher.common.CodeEnum;
 import com.metal.fetcher.mapper.sqlmapper.BarrageSQL;
 import com.metal.fetcher.mapper.sqlmapper.SubTaskSQL;
@@ -210,6 +210,7 @@ public class VideoTaskMapper {
 					}
 
 				}catch (SQLException se){
+					log.error("=====insert barrage error sql :{};param:{}======",BarrageSQL.INSERT_BARRAGE, JSONObject.toJSONString(barrageEntity));
 					fail_count++;
 					continue;
 				}

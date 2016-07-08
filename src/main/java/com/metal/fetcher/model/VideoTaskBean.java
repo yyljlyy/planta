@@ -11,7 +11,19 @@ public class VideoTaskBean {
 	private Date start_time;
 	private Date end_time;
 	private long tv_id;
-	
+
+	public VideoTaskBean() {
+	}
+
+	public VideoTaskBean(int status, String title, int platform, String url, long vid, long tv_id) {
+		this.status = status;
+		this.title = title;
+		this.platform = platform;
+		this.url = url;
+		this.vid = vid;
+		this.tv_id = tv_id;
+	}
+
 	public long getVid() {
 		return vid;
 	}

@@ -92,11 +92,10 @@ public class LeTvBarrageFetcher extends VideoBarrageFetcher{
 
             logger.info("=========第【"+deepCount+"】次深度抓取，start:["+start+"]urlChange :["+urlChange+"]=============");
             //fetcher 弹幕
-//            for(int i=0; i<DEFAULT_RETRY_COUNT;i++) {
+            for(int i=0; i<DEFAULT_RETRY_COUNT;i++) {
                 result = HttpHelper.getInstance().httpGet(urlChange);
                 if (result.getStatusCode() != HttpStatus.SC_OK) {
                     logger.warn("http get retry, status code: " + result.getStatusCode() + "; urlChange: " +urlChange);
-                    on_off = false;
                 } else {
                     jsonStr = result.getContent();
                     jsonObj = JSONObject.parseObject(jsonStr);
@@ -114,14 +113,16 @@ public class LeTvBarrageFetcher extends VideoBarrageFetcher{
                                 break;
                             }
                         }
+                        start = start + 300;
+                        deepCount++;
+                        on_off = true;
+                        break;
                     }else{
                         on_off = false;
+                        break;
                     }
-                    start = start + 300;
-                    deepCount++;
-                    on_off = true;
                 }
-//            }
+            }
         }
         logger.info("==============="+bean.getTitle()+"("+bean.getPd()+") all barrage entity size :["+listBarrage.size()+"]================");
 

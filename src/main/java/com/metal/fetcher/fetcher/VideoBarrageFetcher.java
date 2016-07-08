@@ -1,5 +1,6 @@
 package com.metal.fetcher.fetcher;
 
+import com.metal.fetcher.common.Config;
 import com.metal.fetcher.handle.CommentFetchHandle;
 import com.metal.fetcher.model.SubVideoTaskBean;
 
@@ -11,6 +12,7 @@ public abstract class VideoBarrageFetcher implements Runnable {
     protected SubVideoTaskBean bean;
     //父类初始化，供子类使用
     protected CommentFetchHandle handle = new CommentFetchHandle();
+    protected int MAX_RETRY = Config.getIntProperty("http_max_retry");
 
     public VideoBarrageFetcher(SubVideoTaskBean bean) {
         this.bean = bean;

@@ -2,6 +2,7 @@ package com.metal.work.impl;
 
 import java.util.List;
 
+import com.metal.fetcher.task.impl.*;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -14,11 +15,6 @@ import com.metal.fetcher.common.MyThreadPool;
 import com.metal.fetcher.mapper.VideoTaskMapper;
 import com.metal.fetcher.model.VideoTaskBean;
 import com.metal.fetcher.task.VideoTask;
-import com.metal.fetcher.task.impl.IqiyiTask;
-import com.metal.fetcher.task.impl.LeTVTask;
-import com.metal.fetcher.task.impl.SohuTask;
-import com.metal.fetcher.task.impl.TengxunTask;
-import com.metal.fetcher.task.impl.YoutuTask;
 
 public class VideoTaskWorkImpl implements Job {
 	
@@ -62,6 +58,9 @@ public class VideoTaskWorkImpl implements Job {
 				break;
 			case Constants.VIDEO_PLATFORM_SOHU:
 				task = new SohuTask(bean);
+				break;
+			case Constants.VIDEO_PLATFORM_BILIBILI:
+				task = new BilibiliTask(bean);
 				break;
 			default:
 				log.error("plantform is not support: " + bean.getPlatform());

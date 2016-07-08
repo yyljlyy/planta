@@ -37,7 +37,8 @@ public class CodeEnum {
         YUO_KU(1,"优酷"),
         I_QIYI(2,"爱奇艺"),
         LE_TV(3,"乐视"),
-        SO_HU(4,"搜狐");
+        SO_HU(4,"搜狐"),
+        BILI_BILI(5,"bilibili");
 
         private int code;
         private String des;

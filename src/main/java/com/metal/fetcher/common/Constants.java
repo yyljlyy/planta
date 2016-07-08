@@ -16,6 +16,7 @@ public class Constants {
 	public static final int VIDEO_PLATFORM_AQIYI = 2;
 	public static final int VIDEO_PLATFORM_LETV = 3;
 	public static final int VIDEO_PLATFORM_SOHU = 4;
+	public static final int VIDEO_PLATFORM_BILIBILI = 5;
 	/** video plantform end **/
 	
 	/** task status start **/
