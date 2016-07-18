@@ -248,5 +248,12 @@
 		  <version>1.6.1</version>
 	  </dependency>
 
+
+	  <!-- phil add dependency -->
+	  <!--<dependency>
+		  <groupId>jnetpcap</groupId>
+		  <artifactId>jnetpcap</artifactId>
+		  <version>1.4.r1425-1d</version>
+	  </dependency>-->
   </dependencies>
 </project>

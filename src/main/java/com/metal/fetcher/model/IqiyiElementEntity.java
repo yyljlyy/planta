@@ -23,6 +23,15 @@ public class IqiyiElementEntity implements Serializable{
     /** 视频名称 */
     private String tvName;
 
+    /** 爱奇艺视频uuid */
+    private String v_uuid;
+
+    /** 视频开始播放时间，爱奇艺表现形式为毫秒ms */
+    private int startTime;
+
+    /** 视频结束播放时间 */
+    private int endTime;
+
     public IqiyiElementEntity() {
     }
 
@@ -43,6 +52,30 @@ public class IqiyiElementEntity implements Serializable{
         this.vid = vid;
         this.cid = cid;
         this.pageUrl = pageUrl;
+    }
+
+    public String getV_uuid() {
+        return v_uuid;
+    }
+
+    public void setV_uuid(String v_uuid) {
+        this.v_uuid = v_uuid;
+    }
+
+    public int getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(int startTime) {
+        this.startTime = startTime;
+    }
+
+    public int getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(int endTime) {
+        this.endTime = endTime;
     }
 
     public String getAlbumId() {

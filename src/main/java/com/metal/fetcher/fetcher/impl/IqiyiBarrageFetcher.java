@@ -372,11 +372,30 @@ public class IqiyiBarrageFetcher extends VideoBarrageFetcher {
             }
         }
         IqiyiElementEntity iqiyiElementEntity_temp = analysisPageCatureParam(html);
+        logger.info("===========end download IqiyiPage process===========");
+        return iqiyiElementEntity_temp;
+        /***
+         * //TODO 拿取视频播放时间
+         */
+        //String singTvInfoUrl = "http://cache.video.qiyi.com/jp/vi/504571300/1d09e685533a3335069eb135ee42e369/";
+        /*final String singTvInfoUrl = "http://cache.video.qiyi.com/jp/vi/%s/%s/";
 
+        for(int i=0; i<DEFAULT_RETRY_COUNT;i++) {
+            result = HttpHelper.getInstance().httpGet(String.format(singTvInfoUrl,iqiyiElementEntity_temp.getAlbumId(),iqiyiElementEntity_temp.getV_uuid()));
+            if (result.getStatusCode() != HttpStatus.SC_OK) {
+                logger.warn("http get retry, status code: " + result.getStatusCode() + "; url: " + enter_url);
+            } else {
+                html = result.getContent();
+                break;
+            }
+        }
+        String html = result.getContent();
+        int start = html.indexOf("{");
+        String json = html.substring(start);
         logger.info("===========end download IqiyiPage process===========");
         return iqiyiElementEntity_temp;
 
-        /*if(null == iqiyiElementEntity){
+        if(null == iqiyiElementEntity){
             logger.info("========== url : ["+enter_url+"]===========");
             *//** 下载页面 *//*
             HttpResult result = HttpHelper.getInstance().httpGet(enter_url);

@@ -30,6 +30,10 @@ public class SubVideoTaskBean {
 	private int tv_id;
 	/** 弹幕任务状态：0: 初始; 1: 运⾏中; 2: 完成; -1: ⼿手动结束; -2: 异常结束 */
 	private int barrage_status;
+	/** 爱奇艺的视频uuid */
+	private String v_uuid;
+	/** 剧情播放时长 */
+	private int playTime;
 
 	public SubVideoTaskBean() {
 
@@ -47,6 +51,22 @@ public class SubVideoTaskBean {
 		this.last_update_time = last_update_time;
 		this.tv_id = tv_id;
 		this.barrage_status = barrage_status;
+	}
+
+	public int getPlayTime() {
+		return playTime;
+	}
+
+	public void setPlayTime(int playTime) {
+		this.playTime = playTime;
+	}
+
+	public String getV_uuid() {
+		return v_uuid;
+	}
+
+	public void setV_uuid(String v_uuid) {
+		this.v_uuid = v_uuid;
 	}
 
 	public int getBarrage_status() {

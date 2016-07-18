@@ -35,7 +35,7 @@ public class VideoTaskMapper {
 	
 	private static final String UPDATE_TASK_STATUS = "update video_task set status=? where vid=?";
 	
-	private static final String SUB_VIDEO_TASK_INSERT_SQL = "insert into sub_video_task (vid,page_url,platform,title,pd,status,tv_id) values (?,?,?,?,?,?,?) on DUPLICATE key UPDATE pd=?,status=?";
+	private static final String SUB_VIDEO_TASK_INSERT_SQL = "insert into sub_video_task (vid,page_url,platform,title,pd,status,tv_id,barrage_status) values (?,?,?,?,?,?,?,?) on DUPLICATE key UPDATE pd=?,status=?,barrage_status=?";
 
 	private static final String QUERY_SUB_TASK_BY_STATUS = "select sub_vid,vid,page_url,platform,title,status,add_time,last_update_time from sub_video_task where status=? limit ?";
 	
@@ -46,6 +46,8 @@ public class VideoTaskMapper {
 	private static final String COMMENTS_INSERT_SQL = "insert ignore into video_comments (comment_id,vid,sub_vid,user_id,user_name,publish_time,up_count,down_count,re_count,type,content) values (?,?,?,?,?,?,?,?,?,?,?)";
 	
 	private static final String CHECK_AND_RESET_SQL = "update video_task set status=0,start_time=now() where status=2 and reset_time!='' and reset_time!='00:00:00' and start_time<concat(curdate(),' ',reset_time) and now()>concat(curdate(),' ',reset_time)";
+
+	private static final String CHECK_AND_RESET_BARRAGE_SQL = "update video_task set barrage_status=0,start_time=now() where barrage_status=2 and reset_time!='' and reset_time!='00:00:00' and start_time<concat(curdate(),' ',reset_time) and now()>concat(curdate(),' ',reset_time)";
 
 	public static void insertVideoTask(String url, int platform, String title) {
 		DBUtils.update(VIDEO_TASK_INSERT_SQL, url, platform, title, Constants.TASK_STATUS_INIT);
@@ -85,7 +87,7 @@ public class VideoTaskMapper {
 			QueryRunner qr = new QueryRunner();
 			for(SubVideoTaskBean video : videoList) {
 				log.info("insert sub video: " + video);
-				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getPage_url(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, videoTaskBean.getTv_id(), video.getPd(), Constants.TASK_STATUS_INIT);
+				qr.update(conn, SUB_VIDEO_TASK_INSERT_SQL, videoTaskBean.getVid(), video.getPage_url(), videoTaskBean.getPlatform(), video.getTitle(), video.getPd(), Constants.TASK_STATUS_INIT, videoTaskBean.getTv_id(),Constants.TASK_STATUS_INIT, video.getPd(), Constants.TASK_STATUS_INIT,Constants.TASK_STATUS_INIT);
 			}
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -187,6 +189,7 @@ public class VideoTaskMapper {
 	
 	public static void checkAndReset() {
 		DBUtils.update(CHECK_AND_RESET_SQL, new Object[]{});
+		DBUtils.update(CHECK_AND_RESET_BARRAGE_SQL, new Object[]{});
 	}
 
 	/** 保存弹幕 */
