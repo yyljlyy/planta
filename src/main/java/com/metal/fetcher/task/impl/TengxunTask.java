@@ -159,9 +159,9 @@ public class TengxunTask extends VideoTask {
 		try {
 			Document doc = Jsoup.parse(html);
 
-			//TODO 新的抓取逻辑
+			//16.08.02 修改抓取逻辑
 			Elements elements = doc.getElementById("mod_episode").getElementsByTag("a");
-
+			//TODO 判断预告片，根据doc.getElementById("mod_episode").getElementsByTag（span) 是否有class “.__trailer”属性，有时间再改
 			String url = null,title = null,pb = null;
 
 			for ( Element ele : elements ) {
@@ -170,9 +170,14 @@ public class TengxunTask extends VideoTask {
 				pb = ele.text();
 				SubVideoTaskBean subVideo = new SubVideoTaskBean();
 				subVideo.setPage_url(Utils.buildAbsoluteUrl(videoTaskBean.getUrl(), url));
-				subVideo.setTitle(title);
-				subVideo.setPd(Integer.parseInt(pb));
-
+				if( null != title ){
+					subVideo.setTitle(title);
+					if(title.contains("预告")){
+						subVideo.setPd(0);
+					}else{
+						subVideo.setPd(Integer.parseInt(pb));
+					}
+				}
 				subVideos.add(subVideo);
 			}
 			/** 8.02 发现失效 */
