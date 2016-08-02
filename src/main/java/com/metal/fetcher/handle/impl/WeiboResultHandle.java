@@ -31,7 +31,7 @@ public class WeiboResultHandle implements SearchFetchHandle {
 	private static final String PREFIX = "<script>STK && STK.pageletM && STK.pageletM.view(";
 	private static final String SUBFIX = ")</script>";
 	private static final String CONTENT_FLAG = "<script>STK && STK.pageletM && STK.pageletM.view({\"pid\":\"pl_weibo_direct\"";
-	
+
 	@Override
 	public void handle(SubTask subTask, String url, String html) {
 //	public void handle(String url, String html) {
@@ -46,21 +46,26 @@ public class WeiboResultHandle implements SearchFetchHandle {
 			return;
 		}
 		Document doc = Jsoup.parse(mainHtml);
-		
-		Elements eles = doc.getElementsByAttributeValue("action-type", "feed_list_item");
+
+		/***
+		 * 1、抓取所有的页面元素！！
+		 *
+		 *
+		 */
+		Elements eles = doc.getElementsByAttributeValue("action-type", "feed_list_item");//该路径包含了全部的微博信息；每条微博
 		for(Element ele : eles) {
 			try {
 				String mid = ele.attr("mid");
-				String content = ele.getElementsByAttributeValue("node-type", "feed_list_content").get(0).text();
+				String content = ele.getElementsByAttributeValue("node-type", "feed_list_content").get(0).text();//抓取微博内容
 				Element face = ele.getElementsByClass("face").get(0).getElementsByTag("a").get(0);
 				String userName = face.attr("title");
 				String userCard = face.getElementsByTag("img").attr("usercard");
 				int endIndex = userCard.indexOf("&");
 				String userId = userCard.substring(3, endIndex);
-				String tmStr = ele.getElementsByAttributeValue("node-type", "feed_list_item_date").get(0).attr("date");
+				String tmStr = ele.getElementsByAttributeValue("node-type", "feed_list_item_date").get(0).attr("date");//发送时间
 				Date pubTime = new Date(Long.parseLong(tmStr));
 				
-				String feedItemUrl = "http://weibo.com/" + userId + "/" + WeiboHelper.mid2Id(mid);
+				String feedItemUrl = "http://weibo.com/" + userId + "/" + WeiboHelper.mid2Id(mid);//TODO mid计算一个微博内容唯一码，插入时校验
 				
 				Article article = new Article();
 				article.setUrl(feedItemUrl);

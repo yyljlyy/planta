@@ -64,6 +64,15 @@ public class ArticleTaskMapper {
 		DBUtils.update(INSERT_SUB_TASK_SQL, subTask.getTask_id(), subTask.getPlatform(), subTask.getUrl(), Constants.TASK_STATUS_INIT, Constants.TASK_STATUS_INIT);
 	}
 
+	/***
+	 * 微信文章和微博内容插入，排重机制：
+	 * 第一、通过url（微博内容的url有base64编码，可以唯一；但是微信文章的url几小时就更新一次，所以看第二）
+	 * 第二、通过title校验是否添加过
+	 * TODO 1：整体来说，这种方式都不是较为理想的，如果可以采用增量方式（微博可以做到增量），会更可取
+	 * TODO 2：搜狗微信文章，并没有模拟登陆，意味着，现在新添加的任务，最多以当前时间计算，抓取100条微信文章（分页：1，10）
+	 * @param taskId
+	 * @param article
+     */
 	public static void insertArticle(long taskId, Article article) {
 		Connection conn = null;
 		try {

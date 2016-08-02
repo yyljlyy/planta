@@ -107,6 +107,11 @@ public class WeiboFetcher extends SearchFetcher {
 			if(arr.length >= 3) {
 				cookie = arr[2].trim();
 			}
+			/**
+			 * @note phil
+			 * 1.此处的cookie useless
+			 * 2.模拟微博登陆，拿到有用的cookie信息
+			 */
 			WeiboAccount weiboAccount = new WeiboAccount(account, pwd, cookie);
 			if(StringUtils.isBlank(cookie)) {
 				weiboAccountBuildCookie(weiboAccount);
@@ -142,7 +147,18 @@ public class WeiboFetcher extends SearchFetcher {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/***
+	 * @title	处理微博抓取逻辑
+	 * 1、获取微博登陆信息（cookie）
+	 * 2、包装cookie ==》Http Header头
+	 * 3、page默认遍历1到10，缺点是重复工作，如果特别热门，数据容错率大；第二：通过解析
+	 * 	  TODO 1、添加查询时间控制，配合定时时间，增量抓取数据
+	 * 	  TODO 2、抓取逻辑太过费劲，臃肿，应该可以再改进
+	 * 4、
+	 *
+	 *
+	 */
 	@Override
 	protected void fetch() {
 //		String url = String.format(WEIBO_SEARCH_FORMAT, subTask.getUrl());
@@ -153,7 +169,7 @@ public class WeiboFetcher extends SearchFetcher {
 		Header cookie = new BasicHeader("Cookie", weiboAccount.getCookie()); // TODO
 		
 		log.info("cookie: " + cookie.getValue());
-		
+
 		Header[] headers = new Header[]{cookie};
 		for(int page=1; page<=WEIBO_PAGE_COUNT; page++) {
 			Utils.randomSleep(1, 2);

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -157,8 +158,26 @@ public class TengxunTask extends VideoTask {
 		List<SubVideoTaskBean> subVideos = new ArrayList<SubVideoTaskBean>();
 		try {
 			Document doc = Jsoup.parse(html);
-			Element albumList = doc.getElementsByClass("album_list").get(0);
-			Elements list = albumList.getElementsByTag("li");
+
+			//TODO 新的抓取逻辑
+			Elements elements = doc.getElementById("mod_episode").getElementsByTag("a");
+
+			String url = null,title = null,pb = null;
+
+			for ( Element ele : elements ) {
+				url = ele.attr("href");
+				title = ele.attr("title");
+				pb = ele.text();
+				SubVideoTaskBean subVideo = new SubVideoTaskBean();
+				subVideo.setPage_url(Utils.buildAbsoluteUrl(videoTaskBean.getUrl(), url));
+				subVideo.setTitle(title);
+				subVideo.setPd(Integer.parseInt(pb));
+
+				subVideos.add(subVideo);
+			}
+			/** 8.02 发现失效 */
+			//Element albumList = doc.getElementsByClass("album_list").get(0);
+			/*Elements list = albumList.getElementsByTag("li");
 			for(Element li : list) {
 				Element a = li.getElementsByTag("a").get(0);
 				String url = Utils.buildAbsoluteUrl(videoTaskBean.getUrl(), a.attr("href"));
@@ -170,30 +189,13 @@ public class TengxunTask extends VideoTask {
 					// 剧集
 					subVideo.setPd(Utils.parseInt(title));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				subVideos.add(subVideo);
-			}
+			}*/
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			log.error("get sub videos failed. ", e);
 		}
 		return subVideos;
-	}
-
-	public static void main(String[] args) {
-//		VideoTaskBean bean = new VideoTaskBean();
-//		bean.setUrl("http://film.qq.com/cover/l/lrwweimk8hanlk8/skdlfjoid.html");
-//		System.out.println(new TengxunTask(bean).getVid());
-		String test = "{\"uid\":1234}";
-		try {
-			JsonNode root = MAPPER.readTree(test);
-			System.out.println(root.get("uid").asText());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 	}
 }

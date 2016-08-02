@@ -58,7 +58,7 @@ public class TengxunCommentFetcher extends VideoCommentFetcher {
 		String urlEnd = urlArr[urlArr.length - 1];
 		String vid = urlEnd.split("\\.")[0];
 		String commentIdUrl = null;
-		if(urlArr.length == 5) {
+		if(urlArr.length == 5 || urlArr.length == 7) {//TODO 这里逻辑是原来的，不知道为什么这样处理，新加一个 == 7，暂时跑起来有时间再改
 			commentIdUrl = String.format(GET_COMMENT_ID_URL_FORMAT, vid);
 		} else { // urlArr.length == 4
 			commentIdUrl = String.format(GET_COMMENT_ID_URL_FORMAT2, vid);

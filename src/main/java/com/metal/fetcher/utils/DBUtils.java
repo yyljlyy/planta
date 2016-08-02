@@ -97,7 +97,7 @@ public class DBUtils {
 		try {
 			conn = DBHelper.getInstance().getConnection();
 			if (log.isDebugEnabled()) {
-				log.debug("update sql: "+sql);
+//				log.debug("update sql: "+sql);
 			}
 			QueryRunner qr = new QueryRunner();
 			qr.update(conn,sql,it);
