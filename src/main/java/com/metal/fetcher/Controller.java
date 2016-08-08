@@ -1,5 +1,6 @@
 package com.metal.fetcher;
 
+import com.metal.fetcher.server.ResourceServer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,11 @@ public class Controller {
 		if(StringUtils.isNotBlank(TASK_CHECK_RESET_SCHEDULE)) {
 			log.info("check-and-reset-task: " + TASK_CHECK_RESET_SCHEDULE);
 			QuartzManager.addJob("check-and-reset-task", ResetTaskImpl.class, TASK_CHECK_RESET_SCHEDULE);
+		}
+		try {
+			ResourceServer.startJetty();
+		} catch (Exception e) {
+			log.error("start jetty failed. ", e);
 		}
 	}
 }

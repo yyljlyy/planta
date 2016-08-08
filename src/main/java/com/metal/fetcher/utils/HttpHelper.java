@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,37 +49,37 @@ import java.util.Random;
  *
  */
 public class HttpHelper {
-	
+
 	/**
 	 * 重定向标示位
 	 */
 	private  Boolean  isRediect=true;
 	private static final HttpHelper instance = new HttpHelper();
-	
+
 	private static Logger log = LoggerFactory.getLogger(HttpHelper.class);
-	
+
 	private static final String[] DEFAULT_USER_AGENT = {
-		//mac crome
-		"Internet Explorer 9.0 Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
-		//mac safari
-		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.4.8 (KHTML, like Gecko) Version/8.0.3 Safari/600.4.8",
-		//windows chrome
-		"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36",
-		//windows firefox
-		"Mozilla/5.0 (Windows NT 6.3; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0"
+			//mac crome
+			"Internet Explorer 9.0 Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
+			//mac safari
+			"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.4.8 (KHTML, like Gecko) Version/8.0.3 Safari/600.4.8",
+			//windows chrome
+			"Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36",
+			//windows firefox
+			"Mozilla/5.0 (Windows NT 6.3; WOW64; rv:42.0) Gecko/20100101 Firefox/42.0"
 	};
-	
+
 	private static Random r = new Random();
-	
+
 	public boolean isRediect() {
 		return isRediect;
 	}
-	
+
 	public HttpHelper setRediect(boolean isRediect) {
-		 this.isRediect=isRediect;
+		this.isRediect=isRediect;
 		return this;
 	}
-	
+
 	public static String getRandomUserAgent() {
 		return DEFAULT_USER_AGENT[r.nextInt(DEFAULT_USER_AGENT.length)];
 	}
@@ -96,7 +97,7 @@ public class HttpHelper {
 		PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager();
 		httpClientConnectionManager.setMaxTotal(Config.HTTP_MAX_TOTAL);	//设置连接池线程最大数量
 		httpClientConnectionManager.setDefaultMaxPerRoute(Config.HTTP_MAX_ROUTE);	//设置单个路由最大的连接线程数量
-		
+
 		//创建http request的配置信息
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setConnectionRequestTimeout(Config.HTTP_CONN_TIMEOUT)
@@ -109,7 +110,7 @@ public class HttpHelper {
 			 */
 			@Override
 			public boolean isRedirected(HttpRequest request,
-					HttpResponse response, HttpContext context)
+										HttpResponse response, HttpContext context)
 					throws ProtocolException {
 				// TODO Auto-generated method stub
 				return isRediect ? super.isRedirected(request, response, context) : isRediect;
@@ -117,136 +118,136 @@ public class HttpHelper {
 		};
 		//初始化httpclient客户端
 		httpClient = HttpClients.custom().setConnectionManager(httpClientConnectionManager)
-						.setDefaultRequestConfig(requestConfig)
-						//.setUserAgent(NewsConstant.USER_AGENT)
-						.setRedirectStrategy(redirectStrategy)
-						.build();
+				.setDefaultRequestConfig(requestConfig)
+				//.setUserAgent(NewsConstant.USER_AGENT)
+				.setRedirectStrategy(redirectStrategy)
+				.build();
 	}
-	
+
 	public synchronized static HttpHelper getInstance(){
 		return instance;
 	}
-	
-	
+
+
 	public static void main(String[] args) throws Exception {
 //		HttpHelper.getInstance().doPost("http://192.168.11.248:8080/crawlers/crawler/send_urls", null, "");
 		System.out.println(HttpHelper.getInstance().httpGet("http://www.le.com/ptv/vplay/24387403.html", null, null, new HttpHost("127.0.0.1",8888), null));
 	}
-	
+
 	public String doPost(String url,List<NameValuePair> pairs) {
 		return doPost(url, pairs,"UTF-8");
 	}
-	
-   public  String doPost(String url,List<NameValuePair> pairs,String charset){
-        if(StringUtils.isBlank(url)){
-            return null;
-        }
-        log.info(" post url="+url);
-        try {
-            HttpPost httpPost = new HttpPost(url);
-            if(pairs != null && pairs.size() > 0){
-                httpPost.setEntity(new UrlEncodedFormEntity(pairs,charset));
-            }
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != 200) {
-                httpPost.abort();
-                throw new RuntimeException("HttpClient,error status code :" + statusCode);
-            }
-            HttpEntity entity = response.getEntity();
-            String result = null;
-            if (entity != null){
-                result = EntityUtils.toString(entity, charset);
-            }
-            EntityUtils.consume(entity);
-            response.close();
-            return result;
-        } catch (Exception e) {
-        	log.error("to request addr="+url +", "+e.getMessage());
-        	e.printStackTrace();
-        }
-        return null;
-    }
-	
+
+	public  String doPost(String url,List<NameValuePair> pairs,String charset){
+		if(StringUtils.isBlank(url)){
+			return null;
+		}
+		log.info(" post url="+url);
+		try {
+			HttpPost httpPost = new HttpPost(url);
+			if(pairs != null && pairs.size() > 0){
+				httpPost.setEntity(new UrlEncodedFormEntity(pairs,charset));
+			}
+			CloseableHttpResponse response = httpClient.execute(httpPost);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != 200) {
+				httpPost.abort();
+				throw new RuntimeException("HttpClient,error status code :" + statusCode);
+			}
+			HttpEntity entity = response.getEntity();
+			String result = null;
+			if (entity != null){
+				result = EntityUtils.toString(entity, charset);
+			}
+			EntityUtils.consume(entity);
+			response.close();
+			return result;
+		} catch (Exception e) {
+			log.error("to request addr="+url +", "+e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public  String doPost(String url,Map<String,String> params){
 		return this.doPost(url, params, 5000);
 	}
-	
+
 	/**
-     * HTTP Post 获取内容
-     * @param url  请求的url地址 ?之前的地址
-     * @param params 请求的参数
-//     * @param charset    编码格式
-     * @return    页面内容
-     */
-    public  String doPost(String url,Map<String,String> params, int timeout){
-        if(StringUtils.isBlank(url)){
-            return null;
-        }
-        log.info(" post url="+url);
-        try {
-            List<NameValuePair> pairs = null;
-            if(params != null && !params.isEmpty()){
-                pairs = new ArrayList<NameValuePair>(params.size());
-                for(Map.Entry<String,String> entry : params.entrySet()){
-                    String value = entry.getValue();
-                    if(value != null){
-                        pairs.add(new BasicNameValuePair(entry.getKey(),value));
-                    }
-                }
-            }
-            RequestConfig requestConfig = RequestConfig.custom()
+	 * HTTP Post 获取内容
+	 * @param url  请求的url地址 ?之前的地址
+	 * @param params 请求的参数
+	//     * @param charset    编码格式
+	 * @return    页面内容
+	 */
+	public  String doPost(String url,Map<String,String> params, int timeout){
+		if(StringUtils.isBlank(url)){
+			return null;
+		}
+		log.info(" post url="+url);
+		try {
+			List<NameValuePair> pairs = null;
+			if(params != null && !params.isEmpty()){
+				pairs = new ArrayList<NameValuePair>(params.size());
+				for(Map.Entry<String,String> entry : params.entrySet()){
+					String value = entry.getValue();
+					if(value != null){
+						pairs.add(new BasicNameValuePair(entry.getKey(),value));
+					}
+				}
+			}
+			RequestConfig requestConfig = RequestConfig.custom()
 					.setSocketTimeout(timeout)
 					.setConnectTimeout(timeout).build();
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setConfig(requestConfig);
-            if(pairs != null && pairs.size() > 0){
-                httpPost.setEntity(new UrlEncodedFormEntity(pairs,"utf8"));
-            }
-            CloseableHttpResponse response = httpClient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            log.info("response code is =>"+statusCode);
-            if (statusCode != 200) {
-                httpPost.abort();
+			HttpPost httpPost = new HttpPost(url);
+			httpPost.setConfig(requestConfig);
+			if(pairs != null && pairs.size() > 0){
+				httpPost.setEntity(new UrlEncodedFormEntity(pairs,"utf8"));
+			}
+			CloseableHttpResponse response = httpClient.execute(httpPost);
+			int statusCode = response.getStatusLine().getStatusCode();
+			log.info("response code is =>"+statusCode);
+			if (statusCode != 200) {
+				httpPost.abort();
 //                throw new RuntimeException("HttpClient,error status code :" + statusCode);
-                return null;
-            }
-            HttpEntity entity = response.getEntity();
-            String result = null;
-            if (entity != null){
-                result = EntityUtils.toString(entity, "utf8");
-            }
-            EntityUtils.consume(entity);
-            response.close();
-            return result;
-        } catch (Exception e) {
-        	log.error("to request addr="+url +", "+e.getMessage());
-        	e.printStackTrace();
-        }
-        return null;
-    }
-    
+				return null;
+			}
+			HttpEntity entity = response.getEntity();
+			String result = null;
+			if (entity != null){
+				result = EntityUtils.toString(entity, "utf8");
+			}
+			EntityUtils.consume(entity);
+			response.close();
+			return result;
+		} catch (Exception e) {
+			log.error("to request addr="+url +", "+e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public boolean isAborted(String url){
 		return false;
 	}
-	
+
 	public String get(String url){
 		return get(url,"UTF-8");
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public String get(String url, String charset){
-		
+
 		if(StringUtils.isBlank(url)) {
 			return null;	//如果url为空或者null
 		}
 		//创建httpclient请求方式
 		HttpGet httpGet = new HttpGet(url);
-		
+
 		CloseableHttpResponse response = null;
-		
+
 		try {
 			response = httpClient.execute(httpGet);
 			int statusCode = response.getStatusLine().getStatusCode();
@@ -256,13 +257,13 @@ public class HttpHelper {
 				return null;
 			}
 			HttpEntity entity = response.getEntity();
-            String result = null;
-            if (entity != null){
-                result = EntityUtils.toString(entity, charset);
-            }
-            EntityUtils.consume(entity);
-            response.close();
-            return result;
+			String result = null;
+			if (entity != null){
+				result = EntityUtils.toString(entity, charset);
+			}
+			EntityUtils.consume(entity);
+			response.close();
+			return result;
 		} catch(Exception e) {
 			log.error("get failed.", e);
 			return "";
@@ -280,24 +281,53 @@ public class HttpHelper {
 	}
 
 	public HttpResult httpGet(String url){
-		
+
 		if(StringUtils.isBlank(url)) {
 			return null;	//如果url为空或者null
 		}
 		//创建httpclient请求方式
 		HttpGet httpGet = new HttpGet(url);
-		
+
 		return httpRequest(httpGet, null, null, null, null);
 	}
-	
+
 	public HttpResult httpGet(String url, Header[] headers, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
 		if(StringUtils.isBlank(url)) {
 			return null;	//如果url为空或者null
 		}
 		//创建httpclient请求方式
 		HttpGet httpGet = new HttpGet(url);
-		
+
 		return httpRequest(httpGet, headers, isRedirect, proxy, httpContext);
+	}
+
+	public HttpResult httpPost(String url, Map<String,String> params, Header[] headers, HttpContext httpContext) {
+		if(StringUtils.isBlank(url)) {
+			return null;	//如果url为空或者null
+		}
+		//创建httpclient请求方式
+		HttpPost httpPost = new HttpPost(url);
+
+		List<NameValuePair> pairs = null;
+		if(params != null && !params.isEmpty()){
+			pairs = new ArrayList<NameValuePair>(params.size());
+			for(Map.Entry<String,String> entry : params.entrySet()){
+				String value = entry.getValue();
+				if(value != null){
+					pairs.add(new BasicNameValuePair(entry.getKey(),value));
+				}
+			}
+		}
+		if(pairs != null && pairs.size() > 0){
+			try {
+				httpPost.setEntity(new UrlEncodedFormEntity(pairs,"utf8"));
+			} catch (UnsupportedEncodingException e) {
+				log.error("http post builder failed. ", e);
+				return null;
+			}
+		}
+
+		return httpRequest(httpPost, headers, true, null, httpContext);
 	}
 
 	public HttpResult httpGet(String url, Header[] headers, Map<String, String> cookieConfig, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
@@ -316,14 +346,14 @@ public class HttpHelper {
 		}
 		return httpRequest(httpGet, headers, isRedirect, proxy, httpContext);
 	}
-	
+
 	private HttpResult httpRequest(HttpRequestBase request, Header[] headers, Boolean isRedirect, HttpHost proxy, HttpContext httpContext) {
 		HttpResult httpResult = new HttpResult();
-		
+
 		if(request == null) {
 			return null;	//如果url为空或者null
 		}
-		
+
 		request.setHeader(HttpHeaders.ACCEPT, "*/*");
 		request.setHeader(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN,zh;q=0.8,en;q=0.6");
 		request.setHeader(HttpHeaders.CONNECTION, "keep-alive");
@@ -343,30 +373,30 @@ public class HttpHelper {
 		if(proxy != null) {
 			requestBuilder.setProxy(proxy);
 		}
-		
+
 		RequestConfig requestConfig = requestBuilder.build();
 		request.setConfig(requestConfig);
 
 		if(httpContext == null) {
 			httpContext = new BasicHttpContext();
 		}
-		
+
 		CloseableHttpResponse response = null;
-		
+
 		try {
 			response = httpClient.execute(request, httpContext);
 			HttpEntity entity = response.getEntity();
-            String result = null;
-            if (entity != null){
-                result = EntityUtils.toString(entity, "utf-8");
-            }
-            EntityUtils.consume(entity);
-            response.close();
-            httpResult.setContent(result);
-            httpResult.setResponse(response);
-            httpResult.setContext(httpContext);
+			String result = null;
+			if (entity != null){
+				result = EntityUtils.toString(entity, "utf-8");
+			}
+			EntityUtils.consume(entity);
+			response.close();
+			httpResult.setContent(result);
+			httpResult.setResponse(response);
+			httpResult.setContext(httpContext);
 		} catch(Exception e) {
-			log.error("httpResult.getStatusCode() : ["+httpResult.getStatusCode()+"],get failed.", e);
+			log.error("get failed.", e);
 		} finally{
 			request.abort();
 			if(null != response){
@@ -403,7 +433,7 @@ public class HttpHelper {
 //		}
 //		//创建httpclient请求方式
 //		HttpGet httpGet = new HttpGet(url);
-//		
+//
 //		RequestConfig requestConfig = null;
 //		if(allowRedirect) {
 //			requestConfig = RequestConfig.custom()
@@ -413,7 +443,7 @@ public class HttpHelper {
 //					.setProxy(proxy.getHttpHost()).setRedirectsEnabled(false).build();
 //		}
 //		httpGet.setConfig(requestConfig);
-//		
+//
 //		CloseableHttpResponse response = null;
 //		httpGet.setHeader("Accept", "*/*");
 //		httpGet.setHeader("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6");
@@ -424,7 +454,7 @@ public class HttpHelper {
 //			proxy.setUserAgent(getRandomUserAgent());
 //			httpGet.setHeader("User-Agent", proxy.getUserAgent());
 //		}
-//		
+//
 //		if(headers != null && headers.size() > 0) {
 //			for(String headName : headers.keySet()) {
 //				if(headName.toLowerCase().equals("cookie") || headName.toLowerCase().equals("user-agent")) {
@@ -434,7 +464,7 @@ public class HttpHelper {
 //				httpGet.setHeader(headName, headers.get(headName));
 //			}
 //		}
-//		
+//
 //		try {
 //			HttpContext httpContext = new BasicHttpContext();
 //			if(proxy.getCookieStore() != null) {
@@ -443,7 +473,7 @@ public class HttpHelper {
 //				BasicCookieStore cookieStore = new BasicCookieStore();
 //				httpContext.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
 //			}
-//			
+//
 //			response = httpClient.execute(httpGet, httpContext);
 //
 //			Header[] reHeaders = response.getAllHeaders();
@@ -503,19 +533,19 @@ public class HttpHelper {
 		}
 		return headStr;
 	}
-	
-	public void download(String url, Map<String,String> headers, HttpHost httpHost, String file){
-		
+
+	public void download(String url, Map<String,String> headers, HttpHost httpHost, String file, HttpContext httpContext){
+
 		if(null==url || "".equals(url)) {
 			return;	//如果url为空或者null
 		}
 		//创建httpclient请求方式
 		HttpGet httpGet = new HttpGet(url);
-		
+
 		RequestConfig requestConfig = RequestConfig.custom()
-					.setProxy(httpHost).setRedirectsEnabled(true).build();
+				.setProxy(httpHost).setRedirectsEnabled(true).build();
 		httpGet.setConfig(requestConfig);
-		
+
 		CloseableHttpResponse response = null;
 		httpGet.setHeader("Accept", "*/*");
 		httpGet.setHeader("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6");
@@ -526,9 +556,13 @@ public class HttpHelper {
 				httpGet.setHeader(headName, headers.get(headName));
 			}
 		}
-		
+
+		if(httpContext == null) {
+			httpContext = new BasicHttpContext();
+		}
+
 		try {
-			response = httpClient.execute(httpGet);
+			response = httpClient.execute(httpGet, httpContext);
 			int statusCode = response.getStatusLine().getStatusCode();
 			if(log.isInfoEnabled()){
 				log.info("response code is =>"+statusCode);
@@ -539,9 +573,9 @@ public class HttpHelper {
 			}
 			HttpEntity entity = response.getEntity();
 			IOUtils.copy(entity.getContent(), new FileOutputStream(new File(file)));
-			
+
 			EntityUtils.consume(entity);
-            response.close();
+			response.close();
 			//关闭httpEntity流
 			//EntityUtils.consume(entity);
 		} catch(Exception e) {
@@ -560,12 +594,12 @@ public class HttpHelper {
 			}
 		}
 	}
-	
+
 	public static class HttpResult {
 		HttpResponse response;
 		HttpContext context;
 		String content;
-		
+
 		public HttpResponse getResponse() {
 			return response;
 		}
@@ -591,14 +625,14 @@ public class HttpHelper {
 				return -1;
 			}
 		}
-		
+
 		@Override
 		public String toString() {
 			return "HttpResult [response=" + response + ", context=" + context
 					+ ", content=" + content + "]";
 		}
 	}
-	
+
 	public HttpResult httpGetWithRetry(String url, int retry) {
 		HttpResult result = null;
 		for(int i=0; i<retry; i++) {

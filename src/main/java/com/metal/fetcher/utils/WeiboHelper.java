@@ -65,7 +65,8 @@ public class WeiboHelper {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(mid2Id("3982334178635175"));
+		System.out.println(mid2Id("4001878146106115"));
+		System.out.println(mid2Id("4001878146106115"));
 		//登录账号和密码
 //		String account = "17090117957";
 //		String pwd = "ming7957";
